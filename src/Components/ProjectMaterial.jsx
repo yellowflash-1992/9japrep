@@ -1,7 +1,7 @@
 // components/ProjectMaterial.jsx
 import { useState } from 'react';
 import OfflineWrapper from './OfflineWrapper';
-import { useProjectMaterials } from '../hooks/useProjectMaterials';
+import { useProjectMaterials } from '../Hooks/useProjectMaterials';
 import { FaFilePdf, FaFileWord, FaDownload, FaChevronRight } from 'react-icons/fa';
 
 export default function ProjectMaterial({ isOffline }) {

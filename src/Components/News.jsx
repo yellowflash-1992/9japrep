@@ -1,7 +1,7 @@
 // components/News.jsx
 import { useState } from 'react';
 import OfflineWrapper from './OfflineWrapper';
-import { useNews } from '../hooks/useNews';
+import { useNews } from '../Hooks/useNews';
 import { FaExternalLinkAlt, FaClock, FaNewspaper } from 'react-icons/fa';
 
 export default function News({ isOffline }) {

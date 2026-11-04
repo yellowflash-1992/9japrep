@@ -1,7 +1,7 @@
 // components/Events.jsx
 import { useState } from 'react';
 import OfflineWrapper from './OfflineWrapper';
-import { useEvents } from '../hooks/useEvents';
+import { useEvents } from '../Hooks/useEvents';
 import { FaCalendarAlt, FaExternalLinkAlt, FaClock } from 'react-icons/fa';
 
 // Event type badge colors

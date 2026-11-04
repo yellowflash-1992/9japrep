@@ -1,7 +1,7 @@
 // components/PostUtmeSection.jsx
 import { useState } from 'react';
 import OfflineWrapper from './OfflineWrapper';
-import { usePostUtmeData } from '../hooks/usePostUtmeData';
+import { usePostUtmeData } from '../Hooks/usePostUtmeData';
 import { FaUniversity, FaChevronRight } from 'react-icons/fa';
 
 export default function PostUtmeSection({ isOffline }) {

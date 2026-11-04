@@ -1,7 +1,7 @@
 // components/SuggestedGroup.jsx
 import { useState } from 'react';
 import OfflineWrapper from './OfflineWrapper';
-import { useSuggestedGroup } from '../hooks/useSuggestedGroup';
+import { useSuggestedGroup } from '../Hooks/useSuggestedGroup';
 import { FaWhatsapp, FaTelegram, FaUsers, FaExternalLinkAlt } from 'react-icons/fa';
 
 export default function SuggestedGroup({ isOffline }) {
