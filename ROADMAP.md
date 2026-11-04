@@ -36,10 +36,15 @@ Turn this JAMB/WAEC/NECO CBT practice app into a paid product generating
 
 **Goal:** App runs locally + deploys without errors
 
-- [x] Router: BrowserRouter → HashRouter
-- [ ] Kill console spam from 5 mock hooks (USE_MOCK_DATA flag)
-- [ ] Verify all routes render
-- [ ] Deploy to Vercel (replace GH Pages)
+### PHASE 0 — Fix Foundation ✅ COMPLETE
+
+- [x] Router: HashRouter → BrowserRouter (Vercel-ready)
+- [x] Kill console spam from 5 mock hooks (USE_MOCK_DATA flag)
+- [x] Verify all routes render
+- [x] Deploy to Vercel at https://9japrep.vercel.app
+- [x] Fix case-sensitive imports (Windows → Linux)
+- [x] Remove `base` path from vite.config.js
+- [x] Rebrand to CBTify → 9japrep
 
 **Commands:**
 \`\`\`bash
