@@ -35,7 +35,7 @@ import {FaBookOpen, FaStopwatch, FaStore, FaVideo,} from 'react-icons/fa';
 
 export default function QuickGrid({ tools = DEFAULT_TOOLS }) {
   return (
-    <div className="grid grid-cols-4 gap-3 text-center text-sm font-bold md:px-12 md:items-stretch">
+    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center text-sm font-bold md:px-12 md:items-stretch">
       {tools.map((tool) => (
         <a
           key={tool.label}
