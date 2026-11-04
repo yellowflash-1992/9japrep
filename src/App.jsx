@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { createHashRouter, RouterProvider } from "react-router-dom";
 import './App.css';
 
 // Pages & Components
@@ -22,7 +22,7 @@ import ExamPage from './Pages/ExamPage';
 import ExamEnd from './Pages/ExamEnd';
 import ExamReview from './Pages/ExamReview';
 
-const router = createBrowserRouter([
+const router = createHashRouter([
   {
     path: "/",
     element: <LandingPage />,
