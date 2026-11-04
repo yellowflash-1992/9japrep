@@ -1,27 +1,20 @@
-import React, { useState, useContext } from 'react'; // Added useContext here
+import React, { useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'; // Added useNavigate
+import { useAuth } from '../Hooks/useAuth';
 import Sidebar from '../Layout/Sidebar'; 
 import Footer from "../Layout/Footer";
 import NewsAndInfo from './NewsAndInfo';
 import Header from '../Layout/Header';
-import CandidateLoginModal from '../Components/CandidateLoginModal'; // Renamed for clarity
-import WaecLoginModal from '../Components/WaecLoginModal';
-import { ExamStateContext } from '../Helpers/Contexts';
 
 
 
 function LandingPage() {
 
    const navigate = useNavigate();
-
-    //const {gameState, setGameState, userName, setUserName} = useContext(GameStateContext);
+   const { user } = useAuth();
      const location = useLocation();
 
      const [isOpen, setIsOpen] = useState(false);
-
-     const { showLoginModal, setShowLoginModal, userName, showWaecLoginModal, 
-        setShowWaecLoginModal, waecUserName } = 
-     useContext(ExamStateContext);
 
     const isExamActive = 
     location.pathname.startsWith('/exam/') ||
@@ -41,38 +34,17 @@ function LandingPage() {
     location.pathname.startsWith('/exam/'); 
     
 
-    const handleLoginSuccess = () => {
-    setShowLoginModal(false);
+    const handleStartExam = (examType) => {
+        if (!user) {
+            navigate('/login');
+            return;
+        }
 
-    if (!userName.trim()) return;
-
-    const rawSession = localStorage.getItem("jamb_exam_session");
-
-    if (rawSession) {
-        const sessionData = JSON.parse(rawSession);
-        const savedSubject = sessionData.subjectId;
-
-        navigate(`/exam/${savedSubject}`);
-    } else {
-        navigate('/select-subject');
+        if (examType === 'jamb') navigate('/select-subject');
+        if (examType === 'waec' || examType === 'neco') {
+            navigate('/new-select-subject');
+        }
     }
-};
-
-const handleWaecSuccess = () => {
-    setShowWaecLoginModal(false); // Close the modal
-
-    if (!waecUserName || waecUserName.trim().length <= 2) return;
-
-    const rawSession = localStorage.getItem("waec_exam_session");
-
-    if (rawSession) {
-        // If they have a session, take them to the exam
-        navigate('/new-exam-page'); 
-    } else {
-        // Otherwise, take them to select subjects
-        navigate('/new-select-subject');
-    }
-};
 
 
     if (isExamActive) {
@@ -89,7 +61,11 @@ const handleWaecSuccess = () => {
             
             <div className='flex h-screen bg-[#f8fafc] overflow-hidden'>
 
-                <Sidebar isOpen={isOpen} setIsOpen={setIsOpen} />
+                <Sidebar
+                    isOpen={isOpen}
+                    setIsOpen={setIsOpen}
+                    onStartExam={handleStartExam}
+                />
 
                 <div className='flex-1 flex flex-col p-2 overflow-auto'>
 
@@ -102,18 +78,7 @@ const handleWaecSuccess = () => {
   
                    <main className={`relative text-slate-800 transition-all px-6 min-w-0 ${hidePartLayout ? 'flex-1' : 'flex-[1.5]'}`}> 
                             
-                            {/* Fixed Naming and added Navigation Logic */}
-                            {showLoginModal && (
-                                <CandidateLoginModal onStart={handleLoginSuccess} />
-                            )} 
-
-                            
-
-{showWaecLoginModal && (
-    <WaecLoginModal onStart={handleWaecSuccess} />
-)}                               
-                            
-                        <Outlet /> 
+                        <Outlet context={{ handleStartExam }} />
 
                     </main>
 

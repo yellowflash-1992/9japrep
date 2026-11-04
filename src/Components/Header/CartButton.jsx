@@ -15,10 +15,10 @@ export default function CartButton() {
     <>
       <button
         onClick={() => setIsOpen(true)}
+        aria-label="Open shopping cart"
         className="flex text-xs rounded-4xl border px-1 py-2 border-gray-200 items-center gap-1 text-red-800 md:px-5 md:py-3 md:text-sm md:font-bold relative"
       >
         <FaShoppingCart />
-        <span>Cart</span>
         {cartItems.length > 0 && (
           <span className="absolute -top-1 -right-1 bg-rose-500 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center">
             {cartItems.length}

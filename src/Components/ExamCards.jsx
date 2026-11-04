@@ -1,27 +1,19 @@
-import { Link, useNavigate } from 'react-router-dom'; // Added useNavigate
-import { useContext } from 'react'; // Added useContext
-import { ExamStateContext } from '../Helpers/Contexts'; // Added context
+import { Link } from 'react-router-dom';
 import { FaGraduationCap, FaDesktop } from 'react-icons/fa';
 import '../App.css';
 
 
 
 
-export default function ExamCards() {
-
-    const { handleExamEntry, handleWaecEntry, switchExam } = useContext(ExamStateContext);
-    const navigate = useNavigate();
+export default function ExamCards({ onStartExam }) {
 
     const handleJambClick = (e) => {
-        if (e) e.preventDefault();
-        switchExam('jamb');            // Switch to JAMB, clear WAEC session
-        handleExamEntry(navigate);
+        e.preventDefault();
+        onStartExam('jamb');
     };
 
-    const handleWaecClick = (e) => {
-        if (e) e.preventDefault();
-        switchExam('waec');            // Switch to WAEC, clear JAMB session
-        handleWaecEntry(navigate);
+    const handleWaecClick = () => {
+        onStartExam('waec');
     };
 
  return (

@@ -7,6 +7,7 @@ import PostUtmeSection from "../Components/PostUtmeSection";
 import useOfflineStatus from "../Hooks/useOfflineStatus";
 import ProjectMaterial from '../Components/ProjectMaterial';
 import SuggestedGroup from "../Components/SuggestedGroup";
+import { useOutletContext } from "react-router-dom";
 
 
  
@@ -14,6 +15,7 @@ import SuggestedGroup from "../Components/SuggestedGroup";
 export default function Dashboard() {
 
   const isOffline = useOfflineStatus();
+  const { handleStartExam } = useOutletContext();
 
   return (
     <div className="space-y-5 pt-5 pb-12 ">
@@ -23,7 +25,7 @@ export default function Dashboard() {
         <HeroSlider />
                {/* next */}
 
-        <ExamCards />
+        <ExamCards onStartExam={handleStartExam} />
         {/* next */}
 
         <QuickGrid />
@@ -103,4 +105,3 @@ export default function Dashboard() {
 //     </div>
 //   );
 // }
-

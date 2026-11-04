@@ -9,7 +9,7 @@ export default function SystemUsersDisplay() {
   return (
     <div className="flex text-xs rounded-4xl border px-1 py-2 border-gray-200 items-center gap-1 text-red-800 md:text-sm md:font-bold md:px-5 md:py-3">
       <FaUsers />
-      <span>System Users ({count})</span>
+      <span className="hidden md:inline-block">System Users ({count})</span>
     </div>
   );
 }

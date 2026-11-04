@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { createHashRouter, RouterProvider } from "react-router-dom";
+import { supabase } from './lib/supabase';
 import './App.css';
 
 // Pages & Components
@@ -21,6 +22,8 @@ import ExamConfig from './Pages/ExamConfig';
 import ExamPage from './Pages/ExamPage';
 import ExamEnd from './Pages/ExamEnd';
 import ExamReview from './Pages/ExamReview';
+import Login from './Pages/Login';
+import Signup from './Pages/Signup';
 
 const router = createHashRouter([
   {
@@ -55,10 +58,20 @@ const router = createHashRouter([
         ]
       }
     ]
-  }
+  },
+  { path: "/login", element: <Login /> },
+  { path: "/signup", element: <Signup /> },
 ]);
 
 function App() {
+  useEffect(() => {
+    supabase.from('questions').select('count', { count: 'exact', head: true })
+      .then(({ count, error }) => {
+        if (error) console.error('❌ Supabase connection failed:', error)
+        else console.log('✅ Supabase connected! Total questions in DB:', count)
+      })
+  }, [])
+
   // --- SHARED STATE ---
   const [examState, setExamState] = useState("menu");
   const [score, setScore] = useState(0);

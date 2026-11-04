@@ -25,10 +25,10 @@ export default function Profile() {
     <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
+        aria-label={`Open profile${displayName ? ` for ${displayName}` : ''}`}
         className="text-xs rounded-4xl border px-1 py-1 border-gray-200 text-red-800 md:px-5 md:py-3 flex items-center gap-1"
       >
         <FaUserCircle size={18} />
-        <span className="hidden md:inline">{displayName || 'Guest'}</span>
       </button>
 
       {isOpen && (

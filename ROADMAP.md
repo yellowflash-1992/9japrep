@@ -9,28 +9,102 @@ Turn this JAMB/WAEC/NECO CBT practice app into a paid product generating
 
 ## 💰 Business Model
 
-- **Free tier:** 20 sample questions per subject, 1 mock exam
-- **Paid tier:** ₦2,000 one-time (till JAMB 2026) OR ₦1,500/month
-  - All questions unlocked
-  - Unlimited mock exams
-  - Full explanations
-  - Progress tracking + analytics
-- **Payment:** Paystack (hosted checkout)
-- **Launch channels:** WhatsApp groups, JAMB tutorial centers, Twitter/X
+---
 
-## 🏗️ Tech Stack (Locked)
+## 🎯 STRATEGIC PIVOT (March 2026)
 
-- **Frontend:** React 19 + Vite + Tailwind 4 (existing)
-- **Router:** HashRouter (GH Pages) → switch to BrowserRouter on Vercel
-- **Backend:** Supabase (Auth + Postgres + Storage) — free tier
-- **Admin app:** separate repo, shares same Supabase project
-- **Hosting:** Vercel (exam app + admin app) — free tier, custom domain
-- **Payment:** Paystack (backend webhook via Supabase Edge Function)
-- **Repo:** yellowflash-1992/My-Exam-App-using-React
+### The Market Reality
+
+- **Android market is saturated:** 200+ free JAMB CBT apps on Play Store.
+  Top 10 have 100k+ downloads each. Competing head-on = losing.
+- **Desktop CBT centers are underserved:** Students practice on phones,
+  but take the actual exam on desktop with the real JAMB CBT interface.
+  Nobody simulates this well.
+- **Cyber cafés (₦100-300/hour):** No internet, Windows desktops, can't
+  install apps. Free Android apps can't serve this market.
+- **Schools/tutorial centers have money:** ₦30k-100k/year budgets for
+  CBT prep tools. But no good options for adding their own questions.
+
+### The Strategic Answer: PWA + B2B Focus
+
+**Do NOT build a separate desktop app. Do NOT chase the crowded mobile
+market head-on. Convert to PWA and position as "Real JAMB CBT Simulator."**
+
+| Aspect              | Decision                                                                                    |
+| ------------------- | ------------------------------------------------------------------------------------------- |
+| Platform            | **PWA** — installable on Android home screen AND desktop, works offline, one codebase       |
+| Primary positioning | **"The Real JAMB CBT Simulator"** (not "another JAMB app")                                  |
+| Primary revenue     | **B2B** — schools + tutorial centers (₦30-100k/school/year)                                 |
+| Secondary revenue   | **B2C** — students on premium (₦2,000 one-time)                                             |
+| Competitive moat    | **Admin app** (schools add their own questions) + **offline mode** + **real CBT interface** |
+| Target acquisition  | B2B: walk into 5 Ibadan tutorial centers. B2C: WhatsApp groups, TikTok, Twitter             |
+
+### Revenue Projection (Hybrid B2C + B2B)
+
+| Month | B2C users | B2C paying  | B2B schools | Total revenue |
+| ----- | --------- | ----------- | ----------- | ------------- |
+| 3     | 500       | 8 (₦16k)    | 2 (₦60k)    | ₦76,000       |
+| 6     | 3,000     | 45 (₦90k)   | 8 (₦240k)   | ₦330,000      |
+| 12    | 10,000    | 150 (₦300k) | 25 (₦750k)  | ₦1,050,000    |
+
+**B2B customers pay 10x more than B2C.** 5 schools = 100+ B2C premium users.
 
 ---
 
-## 📋 PHASES
+## 📋 REVISED PHASES
+
+### PHASE 0 — Foundation ✅ COMPLETE
+
+- [x] Router: HashRouter → BrowserRouter (Vercel-ready)
+- [x] USE_MOCK_DATA flag silences api.example.com console errors
+- [x] Deploy to Vercel at 9japrep.vercel.app
+- [x] Fix case-sensitive imports (Windows → Linux)
+- [x] Remove `base` path from vite.config.js
+- [x] Rebrand to 9jaPrep
+- [x] QuickGrid 2-col on mobile
+
+**State:** App loads, works on mobile without horizontal overflow, no console errors.
+
+---
+
+### PHASE 1.5 — Convert to PWA (4 hours, UNBLOCKS EVERYTHING) 🔥 PRIORITY
+
+**Goal:** App installable on Android home screen + desktop, works offline
+after first load. Zero rebuild — just add 3 files + config.
+
+**Why first:** Unlocks B2B sales pitch ("works at cyber cafés with no internet")
+and mobile install conversion. Highest ROI per hour of work.
+
+**Steps:**
+
+1. `npm install vite-plugin-pwa`
+2. Update `vite.config.js`:
+
+   ```js
+   import { VitePWA } from 'vite-plugin-pwa'
+   plugins: [
+     react({...}),
+     tailwindcss(),
+     VitePWA({
+       registerType: 'autoUpdate',
+       manifest: {
+         name: '9jaPrep — JAMB, WAEC, NECO CBT',
+         short_name: '9jaPrep',
+         description: 'Practice real JAMB CBT interface. Works offline.',
+         theme_color: '#0f172a',
+         background_color: '#f8fafc',
+         display: 'standalone',
+         start_url: '/',
+         icons: [
+           { src: 'icon-192.png', sizes: '192x192', type: 'image/png' },
+           { src: 'icon-512.png', sizes: '512x512', type: 'image/png' }
+         ]
+       }
+     })
+   ]
+
+   ## 📋 PHASES
+   ```
 
 ### PHASE 0 — Fix Foundation (DONE or nearly done)
 

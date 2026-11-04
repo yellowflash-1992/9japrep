@@ -1,30 +1,54 @@
 // components/Header.jsx
 import React from "react";
-import { FaBars } from 'react-icons/fa';
+import { FaBars, FaUserCircle } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
 import SystemUsersDisplay from '../Components/Header/SystemUsersDisplay';
 import Leaderboard from '../Components/Header/LeaderBoard';
 import CartButton from '../Components/Header/CartButton';
 import NotificationBell from '../Components/Header/NotificationBell';
 import Profile from '../Components/Header/Profile';
+import { useAuth } from '../Hooks/useAuth';
 
 const Header = ({ setIsOpen }) => {
+  const { user } = useAuth();
+
   return (
-    <header className='h-16 p-2 rounded-t-lg items-center md:h-20 shadow-sm flex px-1 border border-gray-200 bg-[#fafaf9]'>
+    <header className='flex w-full items-center justify-between gap-2 px-4 py-2 shadow-sm border border-gray-200 bg-[#fafaf9] rounded-t-lg h-16 md:h-20 md:gap-4 md:px-6'>
       <button 
         onClick={() => setIsOpen(true)} 
-        className='p-4 lg:hidden hover:bg-gray-100 rounded focus:outline-none'
+        className='shrink-0 p-4 lg:hidden hover:bg-gray-100 rounded focus:outline-none'
         aria-label='Open Menu'
       >
         <FaBars />
       </button>
-      <span className='font-bold'></span>
+      <Link to={user ? "/dashboard" : "/"} className="whitespace-nowrap text-lg md:text-xl font-bold">
+        9jaPrep
+      </Link>
       
-      <div className='flex gap-1 items-center justify-end w-full md:gap-4 lg:px-6 lg:mt-4'>
-        <SystemUsersDisplay />
-        <Leaderboard />
-        <CartButton />
-        <NotificationBell />
-        <Profile />
+      <div className='flex shrink-0 items-center justify-end gap-3 md:gap-5'>
+        <div className="shrink-0">
+          <SystemUsersDisplay />
+        </div>
+        <div className="shrink-0">
+          <Leaderboard />
+        </div>
+        {user ? (
+          <>
+            <div className="shrink-0">
+              <CartButton />
+            </div>
+            <div className="hidden shrink-0 md:block">
+              <NotificationBell />
+            </div>
+            <div className="shrink-0">
+              <Profile />
+            </div>
+          </>
+        ) : (
+          <Link to="/login" aria-label="Login or sign up" className="shrink-0">
+            <FaUserCircle className="text-xl md:text-2xl text-slate-400 hover:text-white transition-colors" />
+          </Link>
+        )}
       </div>
     </header>
   );

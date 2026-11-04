@@ -1,4 +1,4 @@
-import { NavLink, Link, useLocation, useNavigate } from 'react-router-dom';
+import { NavLink, Link, useLocation } from 'react-router-dom';
 import { useState, useContext } from 'react'; // Combined imports
 import { 
   FaHome, FaFacebookMessenger, FaChevronDown, FaChevronUp, FaUserGraduate,
@@ -7,30 +7,22 @@ import {
 import { MdPlayCircle } from 'react-icons/md';
 import '../App.css';
 import { ExamStateContext } from '../Helpers/Contexts';
+import CartButton from '../Components/Header/CartButton';
 
 
-const Sidebar = ({isOpen, setIsOpen}) => {
+const Sidebar = ({ isOpen, setIsOpen, onStartExam }) => {
 
-    const { handleExamEntry, handleWaecEntry, waecConfig } = useContext(ExamStateContext);
-    const navigate = useNavigate();
+    const { waecConfig } = useContext(ExamStateContext);
     const location = useLocation();
 
     const isWAECActive = location.pathname.startsWith('/new-') && waecConfig?.examType === 'waec';
     const isNECOActive = location.pathname.startsWith('/new-') && waecConfig?.examType === 'neco';
 
 
-const handleJambClick = (e) => {
-    e.preventDefault();
-  
-  // Pass navigate AND your 'close menu' function
-  handleExamEntry(navigate, () => setIsOpen(false)); 
-
-};
-
-// Logic for WAEC Click (New Fix)
-    const handleWaecClick = (e) => {
+    const handleStartExam = (e, examType) => {
         e.preventDefault();
-        handleWaecEntry(navigate, () => setIsOpen(false));
+        setIsOpen(false);
+        onStartExam(examType);
     };
 
     const [isChatOpen, setIsChatOpen] = useState(false);
@@ -183,7 +175,7 @@ const handleJambClick = (e) => {
             
              <NavLink
              to='/select-subject'
-             onClick={handleJambClick}
+             onClick={(event) => handleStartExam(event, 'jamb')}
             className={({isActive})=>`flex items-center gap-3 py-3 rounded-4xl w-full 
             cursor-pointer transition-all duration-300 px-4
             ${ isActive ? activeLink : normalLink }`}>
@@ -196,7 +188,7 @@ const handleJambClick = (e) => {
             {/* WAEC Link - Active only when examType is 'waec' */}
                                     <NavLink
                                         to='/new-select-subject'
-                                        onClick={handleWaecClick}
+                                        onClick={(event) => handleStartExam(event, 'waec')}
                                         className={`flex items-center gap-3 py-3 rounded-4xl w-full transition-all px-4 ${isWAECActive ? activeLink : normalLink}`}
                                     >
                                         <FaUserGraduate className='text-rose-400' />
@@ -206,7 +198,7 @@ const handleJambClick = (e) => {
                                     {/* NECO Link - Active only when examType is 'neco' */}
                                     <NavLink
                                         to='/new-select-subject'
-                                        onClick={handleWaecClick}
+                                        onClick={(event) => handleStartExam(event, 'neco')}
                                         className={`flex items-center gap-3 py-3 rounded-4xl w-full cursor-pointer transition-all px-4 ${isNECOActive ? activeLink : normalLink}`}
                                     >
                                         <FaBookOpen className='text-emerald-400' />
@@ -355,6 +347,9 @@ const handleJambClick = (e) => {
                 </div>
         </div>
 
+        <div className="md:hidden mt-8 border-t border-white/10 pt-4 px-4 [&>button]:w-full [&>button]:justify-start [&>button]:gap-3 [&>button]:rounded-lg [&>button]:border-0 [&>button]:px-4 [&>button]:py-3 [&>button]:text-slate-300 [&>button]:text-sm [&>button]:hover:bg-white/5">
+            <CartButton />
+        </div>
 
                                 </nav>
                                </div>
@@ -372,4 +367,3 @@ const handleJambClick = (e) => {
     );
 };
 export default Sidebar;
-

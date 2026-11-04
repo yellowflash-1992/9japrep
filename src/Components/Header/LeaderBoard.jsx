@@ -19,7 +19,7 @@ export default function Leaderboard() {
         className="flex text-xs rounded-4xl border px-1 py-2 md:font-bold border-gray-200 items-center gap-1 text-red-800 md:px-5 md:py-3 md:text-sm"
       >
         <FaTrophy />
-        <span>Leaderboard</span>
+        <span className="hidden sm:inline">Leaderboard</span>
       </button>
 
       {isOpen && (
