@@ -18,7 +18,7 @@ export default function Leaderboard() {
         onClick={() => setIsOpen(true)}
         className="flex text-xs rounded-4xl border px-1 py-2 md:font-bold border-gray-200 items-center gap-1 text-red-800 md:px-5 md:py-3 md:text-sm"
       >
-        <FaTrophy />
+        <FaTrophy className="text-xl md:text-2xl" />
         <span className="hidden sm:inline">Leaderboard</span>
       </button>
 

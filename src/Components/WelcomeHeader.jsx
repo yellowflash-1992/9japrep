@@ -32,14 +32,9 @@ export default function WelcomeHeader() {
     const authButton = user ? (
         <button
             onClick={handleLogout}
-            className="group flex flex-col items-end"
+            className="inline-flex items-center justify-center whitespace-nowrap px-2.5 py-1 md:px-3 md:py-1.5 text-xs md:text-sm font-semibold rounded-lg bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500 hover:text-white transition-colors"
         >
-            <span className="text-[10px] font-bold text-slate-400 group-hover:text-rose-500 transition-colors uppercase">
-                Not you?
-            </span>
-            <span className="text-sm font-bold text-slate-800 group-hover:text-rose-600 border-b-2 border-rose-200">
-                Log Out
-            </span>
+            Log Out
         </button>
     ) : (
         <Link
@@ -73,7 +68,7 @@ export default function WelcomeHeader() {
                     Hello, {displayName}!
                 </h1>
                 <p className="text-slate-500 text-sm font-medium">
-                    {activeExam === 'waec' ? 'WAEC/NECO Portal' : 'JAMB CBT Portal'}
+                    Your CBT Practice Portal
                 </p>
             </div>
             <div className="hidden md:block">

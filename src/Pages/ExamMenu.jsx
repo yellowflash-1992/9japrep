@@ -1,6 +1,8 @@
 import React, { useContext } from 'react';
 import { ExamStateContext } from '../Helpers/Contexts';
 import { useNavigate } from 'react-router-dom';
+import { supabase } from '../lib/supabase';
+import { useAuth } from '../Hooks/useAuth';
 import { 
     FaUserCircle, 
     FaClock, 
@@ -14,19 +16,40 @@ import {
 function ExamMenu() {
     // Note: Ensure your Context provides 'waecUserName' if you're using the separate WAEC login
     const { waecUserName, waecSelectedSubjects, waecConfig } = useContext(ExamStateContext);
+    const { user } = useAuth();
     const navigate = useNavigate();
 
     // Determine which name to show (fallback to JAMB name if WAEC name isn't set)
     const displayName = waecUserName || waecUserName || "Guest Candidate";
 
-   const handleBeginExam = () => {
+   const handleBeginExam = async () => {
         if (waecSelectedSubjects.length === 0) {
             alert("No subjects selected! Please go back.");
             navigate('/new-select-subject');
             return;
         }
 
+        if (!user) {
+            alert("Failed to start exam securely.");
+            console.error("Cannot start exam without an authenticated user.");
+            return;
+        }
+
+        const { data, error } = await supabase.from('attempts').insert({
+            user_id: user.id,
+            exam_type: waecConfig.examType === 'neco' ? 'neco' : 'waec',
+            subjects: waecSelectedSubjects,
+            status: 'in_progress'
+        }).select('id').single();
+
+        if (error) {
+            alert("Failed to start exam securely.");
+            console.error(error);
+            return;
+        }
+
         const sessionData = {
+            attemptId: data.id,
             userName: displayName,
             examType: waecConfig.examType || 'waec',
             startTime: new Date().toISOString(),

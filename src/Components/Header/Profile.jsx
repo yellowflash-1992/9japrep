@@ -28,7 +28,7 @@ export default function Profile() {
         aria-label={`Open profile${displayName ? ` for ${displayName}` : ''}`}
         className="text-xs rounded-4xl border px-1 py-1 border-gray-200 text-red-800 md:px-5 md:py-3 flex items-center gap-1"
       >
-        <FaUserCircle size={18} />
+        <FaUserCircle className="text-xl md:text-2xl" />
       </button>
 
       {isOpen && (

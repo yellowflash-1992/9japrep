@@ -3,9 +3,12 @@ import { ExamStateContext } from '../Helpers/Contexts';
 import { useNavigate } from 'react-router-dom';
 import { FaArrowLeft, FaInfoCircle, FaFlag, FaMousePointer, FaLayerGroup, FaClock } from 'react-icons/fa';
 import InstructionModal from '../Components/JambSummaryModal';
+import { supabase } from '../lib/supabase';
+import { useAuth } from '../Hooks/useAuth';
 
 function JambExamMenu() {
   const { userName, selectedSubjects, config } = useContext(ExamStateContext);
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -23,12 +26,36 @@ function JambExamMenu() {
     setIsModalOpen(true);
   };
 
-  const confirmAndStart = () => {
+  const confirmAndStart = async () => {
+  if (selectedSubjects.length === 0) {
+    navigate('/select-subject');
+    return;
+  }
+
+  if (!user) {
+    alert("Failed to start exam securely. Please log in again.");
+    return;
+  }
+
+  const { data, error } = await supabase.from('attempts').insert({
+    user_id: user.id,
+    exam_type: 'jamb',
+    subjects: selectedSubjects,
+    status: 'in_progress'
+  }).select('id').single();
+
+  if (error) {
+    alert("Failed to start exam securely. Please log in again.");
+    console.error(error);
+    return;
+  }
+
   setIsModalOpen(false);
 
   // 1. Setup a clean session
   // We save the TOTAL minutes and the current timeLeft in seconds
   const sessionData = {
+    attemptId: data.id,
     userName: userName,
     startTime: new Date().toISOString(),
     totalDuration: config.duration, // original setting (e.g., 120)

@@ -21,11 +21,11 @@ const Header = ({ setIsOpen }) => {
       >
         <FaBars />
       </button>
-      <Link to={user ? "/dashboard" : "/"} className="whitespace-nowrap text-lg md:text-xl font-bold">
+      <Link to={user ? "/dashboard" : "/"} className="ml-4 whitespace-nowrap text-lg md:text-xl font-bold">
         9jaPrep
       </Link>
       
-      <div className='flex shrink-0 items-center justify-end gap-3 md:gap-5'>
+      <div className='flex shrink-0 items-center justify-end gap-4 md:gap-5 text-xl md:text-2xl'>
         <div className="shrink-0">
           <SystemUsersDisplay />
         </div>
@@ -34,7 +34,7 @@ const Header = ({ setIsOpen }) => {
         </div>
         {user ? (
           <>
-            <div className="shrink-0">
+            <div className="hidden">
               <CartButton />
             </div>
             <div className="hidden shrink-0 md:block">
