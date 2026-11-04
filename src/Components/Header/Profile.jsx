@@ -2,7 +2,7 @@
 import { useState, useContext } from 'react';
 import { FaUserCircle, FaTimes } from 'react-icons/fa';
 import { ExamStateContext } from '../../Helpers/Contexts';
-import { useUserRegistry } from '../../hooks/useUserRegistry';
+import { useUserRegistry } from '../../Hooks/useUserRegistry';
 
 export default function Profile() {
   const [isOpen, setIsOpen] = useState(false);
