@@ -1,7 +1,7 @@
 //import React, { useState } from "react";
 import HeroSlider from "../Components/HeroSlider";
 import ExamCards from '../Components/ExamCards'
-import QuickGrid from "../Components/QUickGrid";
+import QuickGrid from "../Components/QuickGrid";
 import WelcomeHeader from "../Components/WelcomeHeader";
 import PostUtmeSection from "../Components/PostUtmeSection";
 import useOfflineStatus from "../Hooks/useOfflineStatus";

@@ -2,7 +2,7 @@
 import React from "react";
 import { FaBars } from 'react-icons/fa';
 import SystemUsersDisplay from '../Components/Header/SystemUsersDisplay';
-import Leaderboard from '../Components/Header/Leaderboard';
+import Leaderboard from '../Components/Header/LeaderBoard';
 import CartButton from '../Components/Header/CartButton';
 import NotificationBell from '../Components/Header/NotificationBell';
 import Profile from '../Components/Header/Profile';
