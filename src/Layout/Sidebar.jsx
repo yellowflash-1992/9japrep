@@ -7,7 +7,7 @@ import {
 import { MdPlayCircle } from 'react-icons/md';
 import '../App.css';
 import { ExamStateContext } from '../Helpers/Contexts';
-import CartButton from '../Components/Header/CartButton';
+// import CartButton from '../Components/Header/CartButton';
 import PremiumUpgrade from '../Components/PremiumUpgrade';
 
 
@@ -348,10 +348,6 @@ const Sidebar = ({ isOpen, setIsOpen, onStartExam }) => {
                         isMoreOpen ? 'border-slate-700' : 'border-transparent'
                     }`} />
                 </div>
-        </div>
-
-        <div className="md:hidden mt-8 border-t border-white/10 pt-4 px-4 [&>button]:w-full [&>button]:justify-start [&>button]:gap-3 [&>button]:rounded-lg [&>button]:border-0 [&>button]:px-4 [&>button]:py-3 [&>button]:text-slate-300 [&>button]:text-sm [&>button]:hover:bg-white/5">
-            <CartButton />
         </div>
 
 

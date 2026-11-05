@@ -104,7 +104,7 @@ function LandingPage() {
           />
         )}
 
-        {!isExamPage && <PremiumUpgrade className="fixed bottom-6 left-4 z-50 md:hidden px-4 py-2 text-sm" />}
+        {!isExamPage && !isOpen && <PremiumUpgrade className="fixed bottom-6 left-4 z-50 md:hidden px-4 py-2 text-sm" />}
       </div>
     </div>
   );

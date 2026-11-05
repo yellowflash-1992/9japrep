@@ -4,7 +4,7 @@ import { FaBars, FaUserCircle } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import SystemUsersDisplay from '../Components/Header/SystemUsersDisplay';
 import Leaderboard from '../Components/Header/LeaderBoard';
-import CartButton from '../Components/Header/CartButton';
+// import CartButton from '../Components/Header/CartButton';
 // import NotificationBell from '../Components/Header/NotificationBell';
 import Profile from '../Components/Header/Profile';
 import { useAuth } from '../Hooks/useAuth';
@@ -34,9 +34,9 @@ const Header = ({ setIsOpen }) => {
         </div>
         {user ? (
           <>
-            <div className="hidden lg:flex items-center">
+            {/* <div className="hidden lg:flex items-center">
               <CartButton />
-            </div>
+            </div> */}
             <div className="hidden shrink-0 lg:block">
               {/* <NotificationBell /> */}
             </div>
