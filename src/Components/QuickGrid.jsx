@@ -1,8 +1,6 @@
-import {FaBookOpen, FaStopwatch, FaStore, FaVideo,} from 'react-icons/fa';
+import { FaBookOpen, FaStopwatch, FaStore, FaVideo } from "react-icons/fa";
 
-
-
-    const DEFAULT_TOOLS = [
+const DEFAULT_TOOLS = [
   {
     label: "Past Questions",
     icon: FaStopwatch,
@@ -35,7 +33,7 @@ import {FaBookOpen, FaStopwatch, FaStore, FaVideo,} from 'react-icons/fa';
 
 export default function QuickGrid({ tools = DEFAULT_TOOLS }) {
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center text-sm font-bold md:px-12 md:items-stretch">
+    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center text-sm font-bold md:px-12 md:items-stretch px-8 sm:px-0 mx-auto max-w-lg sm:max-w-full">
       {tools.map((tool) => (
         <a
           key={tool.label}
@@ -47,7 +45,9 @@ export default function QuickGrid({ tools = DEFAULT_TOOLS }) {
           <div
             className={`${tool.color} rounded-lg p-4 hover:scale-105 h-full flex-col transition-transform items-center justify-between shadow-sm flex hover:shadow-md`}
           >
-            <h2 className={`mb-3 md:mb-5 text-[10px] md:text-sm font-bold ${tool.text}`}>
+            <h2
+              className={`mb-3 md:mb-5 text-[10px] md:text-sm font-bold ${tool.text}`}
+            >
               {tool.label}
             </h2>
             <div className="flex justify-center rounded-full bg-white/50 md:bg-none hover:bg-purple-900/5">
@@ -58,7 +58,4 @@ export default function QuickGrid({ tools = DEFAULT_TOOLS }) {
       ))}
     </div>
   );
-};
-
-
-               
+}

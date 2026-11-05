@@ -72,7 +72,7 @@ function LandingPage() {
                 {!hidePartLayout && (
                 <Header setIsOpen={setIsOpen} />)}
                    
-                   <div className="flex h-full min-w-0  md:overflow-y-scroll 
+                   <div className="flex flex-col xl:flex-row flex-1 min-h-0 min-w-0 md:overflow-y-scroll
                     md:[&::-webkit-scrollbar]:w-0.5 bg-[#E2E8F0]
                     md:[scrollbar-width:thin] md:transition-all ">
   
@@ -83,7 +83,7 @@ function LandingPage() {
                     </main>
 
                         {!hidePartLayout && (
-                    <aside className='hidden md:block border-l px-4 flex-1 mx-3
+                    <aside className='hidden md:flex flex-col w-full xl:w-auto xl:flex-1 mt-6 xl:mt-0 border-t xl:border-t-0 xl:border-l px-4 xl:mx-3
                     border-slate-200 rounded-sm '>
                         <NewsAndInfo />
                         

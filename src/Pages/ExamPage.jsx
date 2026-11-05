@@ -45,11 +45,23 @@ export default function ExamPage() {
         </div>
     );
 
+    if (questions.length === 0) return (
+        <div className="h-screen w-full flex flex-col items-center justify-center gap-4 bg-slate-50">
+            <p className="text-slate-600 font-bold">Loading failed. Please go back.</p>
+            <button
+                onClick={() => navigate("/new-select-subject")}
+                className="rounded-lg bg-rose-600 px-5 py-2 font-bold text-white hover:bg-rose-700"
+            >
+                Back to subject selection
+            </button>
+        </div>
+    );
+
     return (
         <div className="h-screen w-full bg-slate-100 flex flex-col overflow-hidden font-sans">
             
             {/* TOP HEADER: CANDIDATE INFO & TIMER */}
-            <header className="h-16 bg-rose-700 text-white px-4 md:px-8 flex items-center justify-between shadow-lg z-30">
+            <header className="min-h-16 h-auto md:h-16 bg-rose-700 text-white px-4 md:px-8 py-3 md:py-0 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 md:gap-0 shadow-lg z-30">
                 <div className="flex items-center gap-4">
                     <div className="hidden md:block">
                         <p className="text-[10px] uppercase opacity-70 font-bold leading-none">Candidate</p>
@@ -62,7 +74,7 @@ export default function ExamPage() {
                     </div>
                 </div>
 
-                <div className="flex items-center gap-3 md:gap-6">
+                <div className="w-full md:w-auto flex flex-col md:flex-row items-stretch md:items-center gap-3 md:gap-6">
                     <Timer 
                         duration={waecConfig?.duration || 45} 
                         onTimeUp={finishExam} 
@@ -71,7 +83,7 @@ export default function ExamPage() {
                     />
                     <button 
                         onClick={() => { if(window.confirm("Finish and Submit?")) finishExam() }}
-                        className="bg-emerald-500 hover:bg-emerald-600 text-white px-5 py-1.5 rounded-lg font-bold text-sm transition-colors shadow-sm"
+                        className="w-full md:w-auto px-6 py-2.5 text-sm md:text-base font-semibold rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white transition-colors shadow-sm"
                     >
                         SUBMIT
                     </button>

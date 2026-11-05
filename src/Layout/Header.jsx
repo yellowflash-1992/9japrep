@@ -25,7 +25,7 @@ const Header = ({ setIsOpen }) => {
         9jaPrep
       </Link>
       
-      <div className='flex shrink-0 items-center justify-end gap-4 md:gap-5 text-xl md:text-2xl'>
+      <div className='flex shrink-0 items-center justify-end gap-3 md:gap-4 lg:gap-6 text-lg md:text-xl'>
         <div className="shrink-0">
           <SystemUsersDisplay />
         </div>
@@ -34,10 +34,10 @@ const Header = ({ setIsOpen }) => {
         </div>
         {user ? (
           <>
-            <div className="hidden">
+            <div className="hidden lg:flex items-center">
               <CartButton />
             </div>
-            <div className="hidden shrink-0 md:block">
+            <div className="hidden shrink-0 lg:block">
               <NotificationBell />
             </div>
             <div className="shrink-0">

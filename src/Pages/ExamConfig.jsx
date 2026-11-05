@@ -1,17 +1,22 @@
 import { useContext, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
-import { ExamStateContext } from "../Helpers/Contexts";
+import { ExamStateContext, MIN_WAEC_QUESTIONS } from "../Helpers/Contexts";
 import { FaClock, FaClipboardList, FaLayerGroup, FaChevronLeft } from 'react-icons/fa';
+
+const QUESTION_COUNTS = [2, 5, 10];
 
 function ExamConfig() {
      const { waecConfig, setWaecConfig, waecSelectedSubjects } = useContext(ExamStateContext);
     const navigate = useNavigate();
 
     useEffect(() => {
-        if (!waecConfig.numQuestions || !waecConfig.duration) {
+        const numQuestions = Number(waecConfig.numQuestions);
+        if (!QUESTION_COUNTS.includes(numQuestions) || !waecConfig.duration) {
             setWaecConfig(prev => ({
                 ...prev,
-                numQuestions: prev.numQuestions || 5, // Default to 5
+                numQuestions: QUESTION_COUNTS.includes(Number(prev.numQuestions))
+                    ? Number(prev.numQuestions)
+                    : MIN_WAEC_QUESTIONS,
                 duration: prev.duration || 45,       // Default to 45 mins
                 examType: prev.examType || "waec"
             }));
@@ -89,11 +94,11 @@ function ExamConfig() {
                         </label>
                         <select
                             name="numQuestions"
-                            value={waecConfig.numQuestions || 5}
+                            value={waecConfig.numQuestions || MIN_WAEC_QUESTIONS}
                             onChange={handleChange}
                             className="w-full bg-slate-50 border-2 border-slate-100 p-4 rounded-2xl focus:border-rose-500 outline-none font-medium text-slate-700"
                         >
-                            {[1, 2, 3, 4, 5].map(num => (
+                            {QUESTION_COUNTS.map(num => (
                                 <option key={num} value={num}>{num} {num === 1 ? 'Question' : 'Questions'}</option>
                             ))}
                         </select>
@@ -104,7 +109,7 @@ function ExamConfig() {
                     {/* Proceed Button */}
                     <button
                         onClick={() => navigate('/new-exam-menu')}
-                        className="w-full bg-rose-600 text-white py-4 rounded-2xl font-bold text-lg
+                        className="w-full md:w-auto px-8 py-2.5 text-sm md:text-base font-bold rounded-xl bg-rose-600 text-white
                         hover:bg-rose-700 active:scale-[0.98] transition-all shadow-lg shadow-rose-100 flex items-center justify-center gap-2"
                     >
                         Confirm & Start Exam

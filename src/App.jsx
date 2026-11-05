@@ -10,7 +10,7 @@ import NewsAndInfo from './Pages/NewsAndInfo';
 import JambSubjectSelect from './Pages/JambSubjectSelect';
 import JambExamPage from './Pages/JambExamPage';
 import JambExamMenu from './Pages/JambExamMenu';
-import { ExamStateContext } from './Helpers/Contexts';
+import { ExamStateContext, MIN_WAEC_QUESTIONS } from './Helpers/Contexts';
 import ExamLayout from './Layout/ExamLayout';
 import JambExamConfig from './Pages/JambExamConfig';
 import JambExamEnd from './Pages/JambExamEnd';
@@ -24,6 +24,7 @@ import ExamEnd from './Pages/ExamEnd';
 import ExamReview from './Pages/ExamReview';
 import Login from './Pages/Login';
 import Signup from './Pages/Signup';
+import HistoryPage from './Pages/HistoryPage';
 
 const router = createHashRouter([
   {
@@ -58,6 +59,11 @@ const router = createHashRouter([
         ]
       }
     ]
+  },
+  {
+    path: "/history",
+    element: <ProtectedRoute />,
+    children: [{ index: true, element: <HistoryPage /> }],
   },
   { path: "/login", element: <Login /> },
   { path: "/signup", element: <Signup /> },
@@ -119,7 +125,7 @@ function App() {
 
   const [waecConfig, setWaecConfig] = useState(() => {
     const saved = localStorage.getItem("waec_config"); 
-    return saved ? JSON.parse(saved) : { duration: 45, numQuestions: 2, examType: 'waec' }; 
+    return saved ? JSON.parse(saved) : { duration: 45, numQuestions: MIN_WAEC_QUESTIONS, examType: 'waec' }; 
   });
 
   useEffect(() => {

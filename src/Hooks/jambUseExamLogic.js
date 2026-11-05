@@ -1,10 +1,20 @@
 // hooks/UseExamLogic.js
 import { useState, useEffect, useContext, useCallback, useRef, useMemo } from "react";
 import { ExamStateContext } from "../Helpers/Contexts";
-import { JambQuestionBank } from "../Helpers/jambQuestionBank";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "../lib/supabase";
 
 const SESSION_PREFIX = "jamb_exam_session_";
+
+const getAttemptId = () => {
+    try {
+        const session = JSON.parse(localStorage.getItem("jamb_exam_session") || "{}");
+        return session.attemptId ?? null;
+    } catch (error) {
+        console.error("Failed to read the current exam attempt:", error);
+        return null;
+    }
+};
 
 export const useExam = (subjectId) => {
     const { userName, setScore, selectedSubjects, config, setDetailedResults, setReviewData } = useContext(ExamStateContext);
@@ -12,6 +22,7 @@ export const useExam = (subjectId) => {
 
     const [isFinishing, setIsFinishing] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const [loadError, setLoadError] = useState("");
     const [questions, setQuestions] = useState([]);
     const [currentQuestion, setCurrentQuestion] = useState(0);
     const [answers, setAnswers] = useState({});
@@ -20,6 +31,8 @@ export const useExam = (subjectId) => {
     const [tabSwitchCount, setTabSwitchCount] = useState(0);
 
     const isFinishingRef = useRef(false);
+    const saveTimerRef = useRef(null);
+    const pendingAnswersRef = useRef(new Map());
 
     // Normalize IDs (e.g., "Use of English" -> "english")
     const normalizedSelected = useMemo(() => {
@@ -40,19 +53,46 @@ export const useExam = (subjectId) => {
     useEffect(() => {
         if (!subjectId) return;
 
-        setIsLoading(true);
-        const normalizedId = subjectId.toLowerCase().trim();
-        const saved = JSON.parse(localStorage.getItem(`${SESSION_PREFIX}${normalizedId}`));
+        let isActive = true;
 
-        if (saved ?.questions ?.length > 0) {
-            setQuestions(saved.questions);
-            setAnswers(saved.answers || {});
-            setFlagged(saved.flagged || []);
-            setCurrentQuestion(saved.currentQuestion || 0);
-            setSelectedOption(saved.answers ?.[saved.currentQuestion] ?? null);
-        } else {
-            const rawPool = JambQuestionBank[normalizedId];
-            if (rawPool) {
+        const loadQuestions = async () => {
+            setIsLoading(true);
+            setLoadError("");
+            const normalizedId = subjectId.toLowerCase().trim();
+            const saved = JSON.parse(localStorage.getItem(`${SESSION_PREFIX}${normalizedId}`));
+
+            if (saved ?.questions ?.length > 0) {
+                setQuestions(saved.questions);
+                setAnswers(saved.answers || {});
+                setFlagged(saved.flagged || []);
+                setCurrentQuestion(saved.currentQuestion || 0);
+                setSelectedOption(saved.answers ?.[saved.currentQuestion] ?? null);
+                setIsLoading(false);
+                return;
+            }
+
+            setQuestions([]);
+            setAnswers({});
+            setFlagged([]);
+            setCurrentQuestion(0);
+            setSelectedOption(null);
+
+            try {
+                const { data, error } = await supabase
+                    .from("questions")
+                    .select("*")
+                    .eq("exam_type", "jamb")
+                    .eq("subject", normalizedId);
+
+                if (!isActive) return;
+
+                if (error) {
+                    console.error("Failed to load JAMB questions:", error);
+                    setLoadError("Could not load questions for this subject. Please try again later.");
+                    return;
+                }
+
+                const rawPool = data ?? [];
                 // Determine count based on Mode and Subject
                 const isFull = config.duration === 120;
                 const isEnglish = normalizedId === "english";
@@ -64,13 +104,20 @@ export const useExam = (subjectId) => {
                     .map(q => ({...q, subjectKey: normalizedId }));
 
                 setQuestions(shuffled);
-                setAnswers({});
-                setFlagged([]);
-                setCurrentQuestion(0);
-                setSelectedOption(null);
+            } catch (error) {
+                if (!isActive) return;
+                console.error("Failed to load JAMB questions:", error);
+                setLoadError("Could not load questions for this subject. Please try again later.");
+            } finally {
+                if (isActive) setIsLoading(false);
             }
-        }
-        setIsLoading(false);
+
+        };
+
+        loadQuestions();
+        return () => {
+            isActive = false;
+        };
     }, [subjectId, config.duration]);
 
     // Save progress to LocalStorage
@@ -80,10 +127,91 @@ export const useExam = (subjectId) => {
         localStorage.setItem(currentSubjectKey, JSON.stringify(examData));
     }, [questions, answers, currentQuestion, flagged, userName, subjectId, isLoading, currentSubjectKey]);
 
-    const finishExam = useCallback(() => {
+    const saveAnswer = useCallback(async (answer) => {
+        const attemptId = getAttemptId();
+        if (!attemptId) {
+            console.error("Cannot save exam answer without an active attempt.");
+            return;
+        }
+
+        try {
+            const { error } = await supabase
+                .from("answers")
+                .upsert({
+                    attempt_id: attemptId,
+                    ...answer,
+                    updated_at: new Date().toISOString(),
+                }, { onConflict: "attempt_id,subject,question_id" });
+
+            if (error) {
+                console.error("Failed to save exam answer to Supabase:", error);
+            }
+        } catch (error) {
+            console.error("Failed to save exam answer to Supabase:", error);
+        }
+    }, []);
+
+    const flushPendingAnswers = useCallback(async () => {
+        const pendingAnswers = [...pendingAnswersRef.current.values()];
+        pendingAnswersRef.current.clear();
+        await Promise.all(pendingAnswers.map(saveAnswer));
+    }, [saveAnswer]);
+
+    useEffect(() => {
+        const syncTimeRemaining = async () => {
+            let session;
+            try {
+                session = JSON.parse(localStorage.getItem("jamb_exam_session") || "{}");
+            } catch (error) {
+                console.error("Failed to read the current exam timer:", error);
+                return;
+            }
+
+            const attemptId = getAttemptId();
+            const timeLeft = session.timeLeft;
+            if (!attemptId || typeof timeLeft !== "number") return;
+
+            try {
+                const { error } = await supabase
+                    .from("attempts")
+                    .update({ time_remaining_seconds: timeLeft })
+                    .eq("id", attemptId);
+
+                if (error) {
+                    console.error("Failed to sync exam timer to Supabase:", error);
+                }
+            } catch (error) {
+                console.error("Failed to sync exam timer to Supabase:", error);
+            }
+        };
+
+        const intervalId = setInterval(syncTimeRemaining, 15000);
+        return () => clearInterval(intervalId);
+    }, []);
+
+    useEffect(() => {
+        return () => {
+            if (saveTimerRef.current) {
+                clearTimeout(saveTimerRef.current);
+            }
+
+            flushPendingAnswers();
+        };
+    }, [flushPendingAnswers]);
+
+    const finishExam = useCallback(async () => {
+        const attemptId = getAttemptId();
+
         if (isFinishingRef.current) return;
         setIsFinishing(true);
         isFinishingRef.current = true;
+
+        if (saveTimerRef.current) {
+            clearTimeout(saveTimerRef.current);
+            saveTimerRef.current = null;
+        }
+
+        await flushPendingAnswers();
 
         const currentExamData = {
             userName,
@@ -127,6 +255,19 @@ export const useExam = (subjectId) => {
             }
         });
 
+        const totalQuestions = Object.values(subjectTotals).reduce((sum, count) => sum + count, 0);
+
+        if (attemptId) {
+            const { error } = await supabase.from('attempts').update({
+                score: totalScore,
+                total: totalQuestions,
+                status: 'submitted',
+                completed_at: new Date().toISOString()
+            }).eq('id', attemptId);
+
+            if (error) console.error("Failed to save score to Supabase:", error);
+        }
+
         setScore(totalScore);
         const finalResults = { breakdown: subjectScores, totals: subjectTotals };
         setDetailedResults(finalResults);
@@ -146,12 +287,34 @@ export const useExam = (subjectId) => {
         });
 
         navigate("/exam-end", { replace: true });
-    }, [normalizedSelected, navigate, setScore, setDetailedResults, setReviewData, userName, subjectId, questions, answers, currentQuestion, flagged, currentSubjectKey]);
+    }, [normalizedSelected, navigate, setScore, setDetailedResults, setReviewData, userName, subjectId, questions, answers, currentQuestion, flagged, currentSubjectKey, flushPendingAnswers]);
 
     const chooseOption = useCallback((index) => {
         setAnswers(prev => ({...prev, [currentQuestion]: index }));
         setSelectedOption(index);
-    }, [currentQuestion]);
+
+        const question = questions[currentQuestion];
+        if (!question?.id || !subjectId) return;
+
+        const pendingAnswer = {
+            subject: subjectId.toLowerCase().trim(),
+            question_id: question.id,
+            selected_option: index,
+        };
+        pendingAnswersRef.current.set(
+            `${pendingAnswer.subject}:${pendingAnswer.question_id}`,
+            pendingAnswer,
+        );
+
+        if (saveTimerRef.current) {
+            clearTimeout(saveTimerRef.current);
+        }
+
+        saveTimerRef.current = setTimeout(() => {
+            saveTimerRef.current = null;
+            flushPendingAnswers();
+        }, 500);
+    }, [currentQuestion, questions, subjectId, flushPendingAnswers]);
 
     const jumpToQuestion = useCallback((index) => {
         if (index < 0 || index >= questions.length) return;
@@ -214,6 +377,7 @@ export const useExam = (subjectId) => {
         answers,
         flagged,
         isLoading,
+        loadError,
         isFinishing,
         chooseOption,
         nextQuestion: handleNextAction,

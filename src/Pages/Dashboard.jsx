@@ -3,6 +3,7 @@ import HeroSlider from "../Components/HeroSlider";
 import ExamCards from '../Components/ExamCards'
 import QuickGrid from "../Components/QuickGrid";
 import WelcomeHeader from "../Components/WelcomeHeader";
+import ExamHistory from "../Components/ExamHistory";
 import PostUtmeSection from "../Components/PostUtmeSection";
 import useOfflineStatus from "../Hooks/useOfflineStatus";
 import ProjectMaterial from '../Components/ProjectMaterial';
@@ -18,9 +19,11 @@ export default function Dashboard() {
   const { handleStartExam } = useOutletContext();
 
   return (
-    <div className="space-y-5 pt-5 pb-12 ">
+    <div className="w-full max-w-full px-2 md:px-4 space-y-5 pt-5 pb-12">
 
         <WelcomeHeader />       
+
+        <ExamHistory />
 
         <HeroSlider />
                {/* next */}

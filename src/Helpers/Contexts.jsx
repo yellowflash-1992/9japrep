@@ -1,5 +1,7 @@
 import { createContext } from "react";
 
+export const MIN_WAEC_QUESTIONS = 2;
+
 export const ExamStateContext = createContext({
 
    examState: "menu",
@@ -29,7 +31,7 @@ export const ExamStateContext = createContext({
   setWaecUserName: () => {},
   waecSelectedSubjects: [],
   setWaecSelectedSubjects: () => {},
-  waecConfig: { duration: 45, numQuestions: 5, examType: 'waec' },
+  waecConfig: { duration: 45, numQuestions: MIN_WAEC_QUESTIONS, examType: 'waec' },
   setWaecConfig: () => {},
 
   activeExam: 'jamb',

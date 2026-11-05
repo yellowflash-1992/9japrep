@@ -1,16 +1,76 @@
 // components/header/LeaderboardButton.jsx
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { FaTrophy, FaTimes } from 'react-icons/fa';
+import { supabase } from '../../lib/supabase';
 
 export default function Leaderboard() {
   const [isOpen, setIsOpen] = useState(false);
+  const [leaders, setLeaders] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
-  // Dummy leaderboard data
-  const leaders = [
-    { name: 'Adebayo C.', score: 1250, exam: 'JAMB' },
-    { name: 'Chidinma O.', score: 1180, exam: 'WAEC' },
-    { name: 'Tunde B.', score: 1120, exam: 'JAMB' },
-  ];
+  useEffect(() => {
+    if (!isOpen) return;
+
+    let isActive = true;
+
+    const fetchLeaders = async () => {
+      setIsLoading(true);
+      setErrorMessage('');
+
+      try {
+        const { data, error } = await supabase
+          .from('attempts')
+          .select('score, total, user_id')
+          .eq('status', 'submitted')
+          .order('score', { ascending: false })
+          .limit(5);
+
+        if (!isActive) return;
+
+        if (error) {
+          console.error('Failed to load leaderboard:', error);
+          setErrorMessage('Could not load the leaderboard. Please try again later.');
+          return;
+        }
+
+        const attempts = data ?? [];
+        const userIds = [...new Set(attempts.map((attempt) => attempt.user_id).filter(Boolean))];
+        const { data: profiles, error: profilesError } = userIds.length
+          ? await supabase
+              .from('profiles')
+              .select('id, full_name')
+              .in('id', userIds)
+          : { data: [], error: null };
+
+        if (!isActive) return;
+
+        if (profilesError) {
+          console.error('Failed to load leaderboard profiles:', profilesError);
+          setErrorMessage('Could not load the leaderboard. Please try again later.');
+          return;
+        }
+
+        const profilesById = new Map((profiles ?? []).map((profile) => [profile.id, profile.full_name]));
+        setLeaders(attempts.map((attempt) => ({
+          ...attempt,
+          name: profilesById.get(attempt.user_id) || 'Unknown user',
+        })));
+      } catch (error) {
+        if (!isActive) return;
+        console.error('Failed to load leaderboard:', error);
+        setErrorMessage('Could not load the leaderboard. Please try again later.');
+      } finally {
+        if (isActive) setIsLoading(false);
+      }
+    };
+
+    fetchLeaders();
+
+    return () => {
+      isActive = false;
+    };
+  }, [isOpen]);
 
   return (
     <>
@@ -32,14 +92,20 @@ export default function Leaderboard() {
               </button>
             </div>
             <div className="space-y-2">
-              {leaders.map((user, i) => (
+              {isLoading ? (
+                <p className="py-4 text-center text-sm text-slate-500">Loading leaderboard...</p>
+              ) : errorMessage ? (
+                <p role="alert" className="py-4 text-center text-sm text-red-600">{errorMessage}</p>
+              ) : leaders.length === 0 ? (
+                <p className="py-4 text-center text-sm text-slate-500">No submitted exam scores yet.</p>
+              ) : leaders.map((leader, i) => (
                 <div key={i} className="flex items-center justify-between p-3 bg-slate-50 rounded-xl">
                   <div className="flex items-center gap-3">
                     <span className="font-bold text-slate-500">#{i+1}</span>
-                    <span className="font-medium">{user.name}</span>
+                    <span className="font-medium">{leader.name}</span>
                   </div>
                   <div className="text-sm text-slate-600">
-                    {user.score} pts <span className="text-xs text-rose-500">({user.exam})</span>
+                    {leader.score ?? 0}/{leader.total ?? 0}
                   </div>
                 </div>
               ))}

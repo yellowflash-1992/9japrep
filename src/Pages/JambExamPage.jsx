@@ -30,6 +30,7 @@ export default function JambExamPage() {
     answers,
     flagged,
     isLoading,
+    loadError,
     chooseOption,
     nextQuestion,
     finishExam,
@@ -65,11 +66,10 @@ export default function JambExamPage() {
       <div className="flex flex-col items-center justify-center min-h-screen text-center p-6 bg-slate-50">
         <div className="bg-white p-8 rounded-3xl shadow-xl border border-slate-200 max-w-md">
           <h2 className="text-2xl font-black text-slate-800 mb-2">
-            Subject Locked
+            {loadError ? "Unable to Load Questions" : "Subject Locked"}
           </h2>
           <p className="text-slate-500 mb-6">
-            Questions for "{toSentenceCase(subjectId)}" are currently being
-            updated.
+            {loadError || `Questions for "${toSentenceCase(subjectId)}" are currently being updated.`}
           </p>
           <NavLink
             to="/exam-config"

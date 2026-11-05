@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { ExamStateContext } from '../Helpers/Contexts';
+import { ExamStateContext, MIN_WAEC_QUESTIONS } from '../Helpers/Contexts';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../Hooks/useAuth';
@@ -35,6 +35,18 @@ function ExamMenu() {
             return;
         }
 
+        Object.keys(localStorage).forEach(key => {
+            if (
+                key.startsWith('waec_exam_session')
+                || key.startsWith('waec_progress')
+                || key.startsWith('neco_exam_session')
+                || key.startsWith('neco_progress')
+                || key === 'waec_exam_completed'
+            ) {
+                localStorage.removeItem(key);
+            }
+        });
+
         const { data, error } = await supabase.from('attempts').insert({
             user_id: user.id,
             exam_type: waecConfig.examType === 'neco' ? 'neco' : 'waec',
@@ -43,7 +55,7 @@ function ExamMenu() {
         }).select('id').single();
 
         if (error) {
-            alert("Failed to start exam securely.");
+            alert("Failed to start exam securely. Check console for details.");
             console.error(error);
             return;
         }
@@ -103,7 +115,7 @@ function ExamMenu() {
                             <div className="flex items-center gap-3 text-rose-700">
                                 <FaQuestionCircle />
                                 <span className="text-xl font-bold">
-                                    {waecSelectedSubjects.length * (waecConfig.numQuestions || 2)} Qs
+                                    {waecSelectedSubjects.length * (waecConfig.numQuestions || MIN_WAEC_QUESTIONS)} Qs
                                 </span>
                             </div>
                         </div>
@@ -159,8 +171,8 @@ function ExamMenu() {
 
                         <button 
                             onClick={handleBeginExam}
-                            className="flex-[2] h-14 bg-rose-600 hover:bg-rose-700
-                             text-white rounded-2xl font-black text-lg shadow-xl shadow-rose-200 transition-all active:scale-95 flex items-center justify-center gap-3"
+                            className="w-full md:w-auto px-6 py-2 text-sm md:text-base font-semibold rounded-lg bg-rose-600 hover:bg-rose-700
+                             text-white shadow-xl shadow-rose-200 transition-all active:scale-95 flex items-center justify-center gap-3"
                         >
                             <FaPlay size={14} /> BEGIN EXAMINATION
                         </button>
