@@ -67,7 +67,7 @@ export default function ExamHistory() {
             <div className="flex md:hidden items-center gap-3">
               <Link
                 to="/history"
-                className="text-sm text-emerald-600 hover:text-emerald-700 font-semibold whitespace-nowrap"
+                className="text-sm text-blue-600 hover:text-blue-800 font-semibold whitespace-nowrap animate-pulse hover:animate-none"
               >
                 View History →
               </Link>
@@ -94,7 +94,7 @@ export default function ExamHistory() {
         <div className="hidden md:flex items-center gap-3">
           <Link
             to="/history"
-            className="text-sm text-emerald-600 hover:text-emerald-700 font-semibold whitespace-nowrap"
+            className="text-sm text-blue-600 hover:text-blue-800 font-semibold whitespace-nowrap animate-pulse hover:animate-none"
           >
             View History →
           </Link>

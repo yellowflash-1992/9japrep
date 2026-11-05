@@ -101,7 +101,11 @@ export const useExam = (subjectId) => {
                 const shuffled = [...rawPool]
                     .sort(() => Math.random() - 0.5)
                     .slice(0, count)
-                    .map(q => ({...q, subjectKey: normalizedId }));
+                    .map(q => ({
+                        ...q,
+                        prompt: q.prompt ?? q.question_text ?? q.question ?? "",
+                        subjectKey: normalizedId,
+                    }));
 
                 setQuestions(shuffled);
             } catch (error) {

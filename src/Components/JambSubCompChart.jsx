@@ -32,7 +32,7 @@ export default function SubjectComparisonChart({ detailedResults, selectedSubjec
   };
 
   return (
-    <div className="h-64 w-full">
+    <div className="w-full h-[250px] md:h-[350px]">
       <Bar data={data} options={options} />
     </div>
   );

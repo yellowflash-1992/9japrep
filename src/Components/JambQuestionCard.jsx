@@ -3,13 +3,14 @@ import React from 'react';
 export default function QuestionCard({ question, selectedOption, chooseOption }) {
   if (!question) return null;
   const labels = ["A", "B", "C", "D"];
+  const prompt = question.prompt ?? question.question_text ?? question.question ?? "";
 
   return (
-    <div className="space-y-6">
+    <div className="w-full min-w-0 space-y-6">
       {/* Question Prompt */}
-      <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100">
-        <h2 className="text-xl md:text-2xl font-bold text-slate-800 leading-relaxed">
-          {question.prompt}
+      <div className="w-full min-w-0 bg-slate-50 p-4 md:p-6 rounded-2xl border border-slate-100">
+        <h2 className="text-xl md:text-2xl font-bold text-slate-800 leading-relaxed whitespace-pre-wrap break-words">
+          {prompt}
         </h2>
       </div>
 

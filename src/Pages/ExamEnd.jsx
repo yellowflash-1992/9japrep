@@ -113,20 +113,20 @@ export default function ExamEnd() {
                         </div>
                     </div>
 
-                    <div className="bg-white p-8 rounded-[2rem] shadow-lg border border-slate-100">
+                    <div className="w-full max-w-full min-w-0 overflow-hidden bg-white p-8 rounded-[2rem] shadow-lg border border-slate-100">
                         <h3 className="font-black text-slate-400 text-xs uppercase tracking-widest mb-6">Result Summary</h3>
                         <div className="space-y-4">
                             {Object.keys(totals).map(sub => (
-                                <div key={sub} className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl">
-                                    <span className="font-bold text-slate-700 capitalize">{sub.replaceAll("_", " ")}</span>
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-32 h-2 bg-slate-200 rounded-full overflow-hidden">
+                                <div key={sub} className="flex w-full max-w-full min-w-0 flex-col gap-3 overflow-hidden rounded-2xl bg-slate-50 p-4 sm:flex-row sm:items-center sm:justify-between">
+                                    <span className="min-w-0 break-words text-sm font-bold text-slate-700 md:text-base capitalize">{sub.replaceAll("_", " ")}</span>
+                                    <div className="flex w-full min-w-0 items-center justify-between gap-3 sm:w-auto sm:justify-end">
+                                        <div className="h-2 w-24 shrink-0 overflow-hidden rounded-full bg-slate-200 sm:w-32">
                                             <div 
                                                 className={`h-full ${theme.progress}`}
                                                 style={{ width: `${totals[sub] ? ((breakdown[sub] || 0) / totals[sub]) * 100 : 0}%` }}
                                             />
                                         </div>
-                                        <span className={`font-black ${theme.scoreText}`}>
+                                        <span className={`shrink-0 text-sm font-black md:text-base ${theme.scoreText}`}>
                                             {breakdown[sub] || 0}/{totals[sub]}
                                         </span>
                                     </div>

@@ -29,7 +29,7 @@ export default function MasterResultChart({ score, total }) {
   };
 
   return (
-    <div className="relative w-48 h-48 mx-auto">
+    <div className="relative w-full h-[250px] md:h-[350px] mx-auto">
       <Doughnut data={data} options={options} />
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         <span className="text-4xl font-black text-slate-800">
