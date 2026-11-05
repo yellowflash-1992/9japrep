@@ -35,10 +35,7 @@ function LandingPage() {
     "/new-exam-end",
   ];
 
-  const hideAsidePages = [
-    "/study-materials",
-    "/profile", // future-proof when you add profile page
-  ];
+  const hideAsidePages = ["/study-materials"];
 
   const hideAside = hideAsidePages.includes(location.pathname);
 
@@ -75,29 +72,35 @@ function LandingPage() {
           onStartExam={handleStartExam}
         />
 
-        <div className="flex-1 flex flex-col p-2 overflow-auto">
+        <div className="flex-1 flex flex-col p-2 overflow-hidden">
           {!hidePartLayout && <Header setIsOpen={setIsOpen} />}
 
+          {/* Scroll container — main + aside + footer all scroll together */}
           <div
-            className="flex flex-col xl:flex-row flex-1 min-h-0 min-w-0 md:overflow-y-scroll
-                    md:[&::-webkit-scrollbar]:w-0.5 bg-[#E2E8F0]
-                    md:[scrollbar-width:thin] md:transition-all "
+            className="flex-1 min-h-0 overflow-y-auto
+      md:[&::-webkit-scrollbar]:w-0.5 bg-[#E2E8F0]
+      md:[scrollbar-width:thin] md:transition-all"
           >
-            <main
-              className={`relative text-slate-800 transition-all px-6 min-w-0 ${hidePartLayout || hideAside ? "flex-1" : "flex-[1.5]"}`}
-            >
-              <Outlet context={{ handleStartExam }} />
-            </main>
+            <div className="flex flex-col xl:flex-row min-w-0">
+              <main
+                className={`relative text-slate-800 transition-all px-6 min-w-0 ${hidePartLayout || hideAside ? "flex-1" : "flex-[1.5]"}`}
+              >
+                <Outlet context={{ handleStartExam }} />
+              </main>
 
-            {!hidePartLayout && !hideAside && (
-              <aside className="hidden md:flex flex-col w-full xl:w-auto xl:flex-1 mt-6 xl:mt-0 border-t xl:border-t-0 xl:border-l px-4 xl:mx-3 border-slate-200 rounded-sm">
-                <NewsAndInfo />
-              </aside>
-            )}
-          </div>
+              {!hidePartLayout && !hideAside && (
+                <aside
+                  className="hidden md:flex flex-col w-full xl:w-auto xl:flex-1 mt-6 xl:mt-0 border-t xl:border-t-0 xl:border-l px-4 xl:mx-3
+              border-slate-200 rounded-sm"
+                >
+                  <NewsAndInfo />
+                </aside>
+              )}
+            </div>
 
-          <div className="hidden lg:block px-1">
-            <Footer />
+            <div className="hidden lg:block px-1 pb-2">
+              <Footer />
+            </div>
           </div>
         </div>
 
