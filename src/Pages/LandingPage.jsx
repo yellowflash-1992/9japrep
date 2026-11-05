@@ -11,7 +11,8 @@ function LandingPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const location = useLocation();
-  const isExamPage = location.pathname.includes('exam') || location.pathname.includes('subject');
+  const isExamPage =
+    location.pathname.includes("exam") || location.pathname.includes("subject");
 
   const [isOpen, setIsOpen] = useState(false);
 
@@ -33,6 +34,13 @@ function LandingPage() {
     "/new-exam-config",
     "/new-exam-end",
   ];
+
+  const hideAsidePages = [
+    "/study-materials",
+    "/profile", // future-proof when you add profile page
+  ];
+
+  const hideAside = hideAsidePages.includes(location.pathname);
 
   const hidePartLayout =
     hiddenPages.includes(location.pathname) ||
@@ -76,16 +84,13 @@ function LandingPage() {
                     md:[scrollbar-width:thin] md:transition-all "
           >
             <main
-              className={`relative text-slate-800 transition-all px-6 min-w-0 ${hidePartLayout ? "flex-1" : "flex-[1.5]"}`}
+              className={`relative text-slate-800 transition-all px-6 min-w-0 ${hidePartLayout || hideAside ? "flex-1" : "flex-[1.5]"}`}
             >
               <Outlet context={{ handleStartExam }} />
             </main>
 
-            {!hidePartLayout && (
-              <aside
-                className="hidden md:flex flex-col w-full xl:w-auto xl:flex-1 mt-6 xl:mt-0 border-t xl:border-t-0 xl:border-l px-4 xl:mx-3
-                    border-slate-200 rounded-sm "
-              >
+            {!hidePartLayout && !hideAside && (
+              <aside className="hidden md:flex flex-col w-full xl:w-auto xl:flex-1 mt-6 xl:mt-0 border-t xl:border-t-0 xl:border-l px-4 xl:mx-3 border-slate-200 rounded-sm">
                 <NewsAndInfo />
               </aside>
             )}
@@ -104,7 +109,9 @@ function LandingPage() {
           />
         )}
 
-        {!isExamPage && !isOpen && <PremiumUpgrade className="fixed bottom-6 left-4 z-50 md:hidden px-4 py-2 text-sm" />}
+        {!isExamPage && !isOpen && (
+          <PremiumUpgrade className="fixed bottom-6 left-4 z-50 md:hidden px-4 py-2 text-sm" />
+        )}
       </div>
     </div>
   );
