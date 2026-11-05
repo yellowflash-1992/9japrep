@@ -56,8 +56,8 @@ export default function ExamHistory() {
   const recentAttempt = history[0];
 
   return (
-    <div className="mb-4 w-full rounded-xl border border-slate-100 bg-white shadow-sm">
-      <div className="flex flex-col md:flex-row md:justify-between md:items-center w-full px-3 py-1.5 gap-2 md:gap-0">
+    <div className="mb-4 w-full rounded-xl border border-blue-100 bg-blue-50/80 shadow-sm">
+      <div className="flex flex-col md:flex-row md:justify-between md:items-center w-full px-3 py-1 md:py-2 gap-2 md:gap-0">
         <div className="flex flex-col md:flex-row md:items-center md:gap-2 w-full md:w-auto">
           <div className="flex justify-between items-center w-full md:w-auto">
             <span className="text-sm font-semibold text-slate-700">

@@ -8,6 +8,7 @@ import { MdPlayCircle } from 'react-icons/md';
 import '../App.css';
 import { ExamStateContext } from '../Helpers/Contexts';
 import CartButton from '../Components/Header/CartButton';
+import PremiumUpgrade from '../Components/PremiumUpgrade';
 
 
 const Sidebar = ({ isOpen, setIsOpen, onStartExam }) => {
@@ -17,6 +18,7 @@ const Sidebar = ({ isOpen, setIsOpen, onStartExam }) => {
 
     const isWAECActive = location.pathname.startsWith('/new-') && waecConfig?.examType === 'waec';
     const isNECOActive = location.pathname.startsWith('/new-') && waecConfig?.examType === 'neco';
+    const isExamPage = location.pathname.includes('exam') || location.pathname.includes('subject');
 
 
     const handleStartExam = (e, examType) => {
@@ -86,8 +88,9 @@ const Sidebar = ({ isOpen, setIsOpen, onStartExam }) => {
                                 </button>
                                      </div>
 
-                                     <div className="p-2 ">
-                                    <h2 className='text-2xl font-bold mb-1 p-4'>CBT EXAM</h2>
+{!isExamPage && <PremiumUpgrade className="mb-4 w-full p-4 bg-slate-800 rounded-xl border border-slate-700 hover:border-amber-400 transition-colors shadow-[0_0_12px_rgba(251,191,36,0.3)]" />}
+                                      <div className="p-2 ">
+                                      <h2 className='text-2xl font-bold mb-1 p-4'>CBT EXAM</h2>
                                 <nav className='space-y-2 flex flex-col  '>
                                     
                                     <Link to="/" className='hover:shadow-md rounded-lg 
@@ -350,6 +353,7 @@ const Sidebar = ({ isOpen, setIsOpen, onStartExam }) => {
         <div className="md:hidden mt-8 border-t border-white/10 pt-4 px-4 [&>button]:w-full [&>button]:justify-start [&>button]:gap-3 [&>button]:rounded-lg [&>button]:border-0 [&>button]:px-4 [&>button]:py-3 [&>button]:text-slate-300 [&>button]:text-sm [&>button]:hover:bg-white/5">
             <CartButton />
         </div>
+
 
                                 </nav>
                                </div>

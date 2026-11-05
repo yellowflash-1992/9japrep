@@ -164,17 +164,17 @@ function ExamMenu() {
                     <div className="flex flex-col md:flex-row gap-4">
                         <button 
                             onClick={() => navigate('/new-exam-config')}
-                            className="flex-1 h-14 border-2 border-slate-200 text-slate-500 rounded-2xl font-bold hover:bg-slate-50 transition-all flex items-center justify-center gap-2"
+                            className="flex-1 h-auto min-h-[3.5rem] border-2 border-slate-200 text-slate-500 rounded-2xl font-bold hover:bg-slate-50 transition-all flex items-center justify-center gap-2 text-xs md:text-sm lg:text-base"
                         >
-                            <FaArrowLeft size={14} /> Back
+                            <FaArrowLeft size={14} /> <span className="whitespace-normal text-wrap leading-tight text-center">Back</span>
                         </button>
 
-                        <button 
+                        <button
                             onClick={handleBeginExam}
-                            className="w-full md:w-auto px-6 py-2 text-sm md:text-base font-semibold rounded-lg bg-rose-600 hover:bg-rose-700
+                            className="flex-[2] h-auto min-h-[3.5rem] text-xs md:text-sm lg:text-base font-semibold rounded-2xl bg-rose-600 hover:bg-rose-700
                              text-white shadow-xl shadow-rose-200 transition-all active:scale-95 flex items-center justify-center gap-3"
                         >
-                            <FaPlay size={14} /> BEGIN EXAMINATION
+                            <FaPlay size={14} /> <span className="whitespace-normal text-wrap leading-tight text-center">BEGIN EXAMINATION</span>
                         </button>
                     </div>
                 </div>

@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import SystemUsersDisplay from '../Components/Header/SystemUsersDisplay';
 import Leaderboard from '../Components/Header/LeaderBoard';
 import CartButton from '../Components/Header/CartButton';
-import NotificationBell from '../Components/Header/NotificationBell';
+// import NotificationBell from '../Components/Header/NotificationBell';
 import Profile from '../Components/Header/Profile';
 import { useAuth } from '../Hooks/useAuth';
 
@@ -13,7 +13,7 @@ const Header = ({ setIsOpen }) => {
   const { user } = useAuth();
 
   return (
-    <header className='flex w-full items-center justify-between gap-2 px-4 py-2 shadow-sm border border-gray-200 bg-[#fafaf9] rounded-t-lg h-16 md:h-20 md:gap-4 md:px-6'>
+    <header className='flex w-full items-center justify-between gap-2 px-4 py-1.5 md:py-2 lg:py-3 shadow-sm border border-gray-200 bg-[#fafaf9] rounded-t-lg h-14 md:h-16 md:gap-4 md:px-6'>
       <button 
         onClick={() => setIsOpen(true)} 
         className='shrink-0 p-4 lg:hidden hover:bg-gray-100 rounded focus:outline-none'
@@ -38,7 +38,7 @@ const Header = ({ setIsOpen }) => {
               <CartButton />
             </div>
             <div className="hidden shrink-0 lg:block">
-              <NotificationBell />
+              {/* <NotificationBell /> */}
             </div>
             <div className="shrink-0">
               <Profile />
