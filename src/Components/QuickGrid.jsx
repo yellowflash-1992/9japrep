@@ -33,7 +33,7 @@ const DEFAULT_TOOLS = [
 
 export default function QuickGrid({ tools = DEFAULT_TOOLS }) {
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center text-sm font-bold md:px-12 md:items-stretch px-8 sm:px-0 mx-auto max-w-lg sm:max-w-full">
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center text-sm font-bold md:px-12 md:items-stretch px-8 sm:px-0 mx-auto max-w-lg sm:max-w-full">
       {tools.map((tool) => (
         <a
           key={tool.label}

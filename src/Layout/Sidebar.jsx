@@ -1,5 +1,5 @@
 import { NavLink, Link, useLocation } from 'react-router-dom';
-import { useState, useContext } from 'react'; // Combined imports
+import { useState, useContext, useRef, useEffect } from 'react'; // Combined imports
 import { 
   FaHome, FaFacebookMessenger, FaChevronDown, FaChevronUp, FaUserGraduate,
   FaBookOpen, FaLaptopCode, FaClock, FaLightbulb, FaCertificate 
@@ -28,6 +28,17 @@ const Sidebar = ({ isOpen, setIsOpen, onStartExam }) => {
     };
 
     const [isChatOpen, setIsChatOpen] = useState(false);
+    const chatRef = useRef(null);
+
+    useEffect(() => {
+      const handleClickOutside = (event) => {
+        if (chatRef.current && !chatRef.current.contains(event.target)) {
+          setIsChatOpen(false);
+        }
+      };
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
 
     //
 
@@ -104,7 +115,7 @@ const Sidebar = ({ isOpen, setIsOpen, onStartExam }) => {
                                      </Link>
                                      
                                     
-                     <div className="relative mt-4 ">
+                     <div className="relative mt-4 " ref={chatRef}>
                         <button
                             onClick={() => setIsChatOpen(prev => !prev)}
                             className="flex items-center gap-3 hover:text-blue-300 

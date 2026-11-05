@@ -69,39 +69,25 @@ export default function SubjectSelect() {
             </div>
 
             {/* --- Subject List with Checkboxes --- */}
-            <div className="space-y-3 max-h-[50vh] overflow-y-auto pr-2 custom-scrollbar">
+            <div className="flex flex-wrap gap-3">
                 {filteredSubjects.length > 0 ? (
                     filteredSubjects.map((subject) => {
                         const isSelected = waecSelectedSubjects.includes(subject);
                         const isDisabled = isAtMax && !isSelected;
 
                         return (
-                            <label
+                            <button
                                 key={subject}
-                                className={`flex items-center justify-between p-4 rounded-xl border-2 cursor-pointer transition-all
-                                    ${isSelected 
-                                        ? 'border-blue-500 bg-blue-50' 
-                                        : 'border-slate-100 hover:border-slate-200 bg-white'}
-                                    ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''}
-                                `}
+                                type="button"
+                                onClick={() => !isDisabled && toggleSubject(subject)}
+                                className={`px-4 py-2 rounded-full border transition-colors ${
+                                    isSelected
+                                        ? 'border-2 border-blue-600 text-white bg-blue-600 shadow-md'
+                                        : 'border border-slate-300 text-slate-700 bg-white hover:bg-slate-50'
+                                } ${isDisabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                             >
-                                <div className="flex items-center gap-4">
-                                    <div className="relative flex items-center">
-                                        <input
-                                            type="checkbox"
-                                            className="w-6 h-6 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer disabled:cursor-not-allowed"
-                                            checked={isSelected}
-                                            disabled={isDisabled}
-                                            onChange={() => toggleSubject(subject)}
-                                        />
-                                    </div>
-                                    <span className={`font-semibold text-lg ${isSelected ? 'text-blue-900' : 'text-slate-700'}`}>
-                                        {subject.charAt(0).toUpperCase() + subject.slice(1)}
-                                    </span>
-                                </div>
-                                
-                                {isSelected && <FaCheck className="text-blue-500" />}
-                            </label>
+                                {subject.charAt(0).toUpperCase() + subject.slice(1)}
+                            </button>
                         );
                     })
                 ) : (
