@@ -102,7 +102,7 @@ function LandingPage() {
 
               {!hidePartLayout && !hideAside && (
                 <aside
-                  className="hidden md:flex flex-col w-full xl:w-auto xl:flex-1 mt-6 xl:mt-0 border-t xl:border-t-0 xl:border-l px-4 xl:mx-3
+                  className="flex flex-col w-full xl:w-auto xl:flex-1 mt-6 xl:mt-0 border-t xl:border-t-0 xl:border-l px-4 xl:mx-3
               border-slate-200 rounded-sm"
                 >
                   <NewsAndInfo />
