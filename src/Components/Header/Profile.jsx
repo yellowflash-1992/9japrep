@@ -1,8 +1,8 @@
 // components/header/ProfileDropdown.jsx
-import { useState, useRef, useEffect } from 'react';
-import { FaUserCircle, FaSignOutAlt } from 'react-icons/fa';
-import { Link } from 'react-router-dom';
-import { useAuth } from '../../Hooks/useAuth';
+import { useEffect, useRef, useState } from "react";
+import { FaSignOutAlt, FaUserCircle } from "react-icons/fa";
+import { Link } from "react-router-dom";
+import { useAuth } from "../../Hooks/useAuth";
 
 export default function Profile() {
   const [isOpen, setIsOpen] = useState(false);
@@ -15,12 +15,12 @@ export default function Profile() {
         setIsOpen(false);
       }
     };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const fullName = user?.user_metadata?.full_name || user?.email || 'Guest';
-  const email = user?.email || '';
+  const fullName = user?.user_metadata?.full_name || user?.email || "Guest";
+  const email = user?.email || "";
 
   const handleSignOut = async () => {
     await signOut();

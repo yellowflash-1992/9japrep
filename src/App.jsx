@@ -1,30 +1,31 @@
-import React, { useState, useEffect } from 'react';
+import { useEffect, useState } from "react";
 import { createHashRouter, RouterProvider } from "react-router-dom";
-import { supabase } from './lib/supabase';
-import './App.css';
+import "./App.css";
+import { supabase } from "./lib/supabase";
 
 // Pages & Components
-import LandingPage from './Pages/LandingPage';
-import Dashboard from './Pages/Dashboard';
-import NewsAndInfo from './Pages/NewsAndInfo';
-import JambSubjectSelect from './Pages/JambSubjectSelect';
-import JambExamPage from './Pages/JambExamPage';
-import JambExamMenu from './Pages/JambExamMenu';
-import { ExamStateContext, MIN_WAEC_QUESTIONS } from './Helpers/Contexts';
-import ExamLayout from './Layout/ExamLayout';
-import JambExamConfig from './Pages/JambExamConfig';
-import JambExamEnd from './Pages/JambExamEnd';
-import JambExamReview from './Pages/JambExamReview';
-import ProtectedRoute from './Components/ProtectedRoute';
-import SubjectSelect from './Pages/SubjectSelect';
-import ExamMenu from './Pages/ExamMenu';
-import ExamConfig from './Pages/ExamConfig';
-import ExamPage from './Pages/ExamPage';
-import ExamEnd from './Pages/ExamEnd';
-import ExamReview from './Pages/ExamReview';
-import Login from './Pages/Login';
-import Signup from './Pages/Signup';
-import HistoryPage from './Pages/HistoryPage';
+import ProtectedRoute from "./Components/ProtectedRoute";
+import { ExamStateContext, MIN_WAEC_QUESTIONS } from "./Helpers/Contexts";
+import ExamLayout from "./Layout/ExamLayout";
+import Dashboard from "./Pages/Dashboard";
+import ExamConfig from "./Pages/ExamConfig";
+import ExamEnd from "./Pages/ExamEnd";
+import ExamMenu from "./Pages/ExamMenu";
+import ExamPage from "./Pages/ExamPage";
+import ExamReview from "./Pages/ExamReview";
+import HistoryPage from "./Pages/HistoryPage";
+import JambExamConfig from "./Pages/JambExamConfig";
+import JambExamEnd from "./Pages/JambExamEnd";
+import JambExamMenu from "./Pages/JambExamMenu";
+import JambExamPage from "./Pages/JambExamPage";
+import JambExamReview from "./Pages/JambExamReview";
+import JambSubjectSelect from "./Pages/JambSubjectSelect";
+import LandingPage from "./Pages/LandingPage";
+import Login from "./Pages/Login";
+import NewsAndInfo from "./Pages/NewsAndInfo";
+import ProfilePage from "./Pages/ProfilePage";
+import Signup from "./Pages/Signup";
+import SubjectSelect from "./Pages/SubjectSelect";
 
 const router = createHashRouter([
   {
@@ -32,21 +33,21 @@ const router = createHashRouter([
     element: <LandingPage />,
     children: [
       { index: true, element: <Dashboard /> },
-      { path: 'info', element: <NewsAndInfo /> },
+      { path: "info", element: <NewsAndInfo /> },
       {
-        element: <ProtectedRoute />, 
+        element: <ProtectedRoute />,
         children: [
           {
-            element: <ExamLayout />, 
+            element: <ExamLayout />,
             children: [
               // JAMB ROUTES
-              { path: 'exam-menu', element: <JambExamMenu /> },
-              { path: 'select-subject', element: <JambSubjectSelect /> },
-              { path: 'exam-config', element: <JambExamConfig /> },
+              { path: "exam-menu", element: <JambExamMenu /> },
+              { path: "select-subject", element: <JambSubjectSelect /> },
+              { path: "exam-config", element: <JambExamConfig /> },
               { path: "exam/:subjectId", element: <JambExamPage /> },
               { path: "exam-end", element: <JambExamEnd /> },
               { path: "exam-review", element: <JambExamReview /> },
-              
+
               // WAEC ROUTES
               { path: "new-exam-menu", element: <ExamMenu /> },
               { path: "new-select-subject", element: <SubjectSelect /> },
@@ -54,16 +55,21 @@ const router = createHashRouter([
               { path: "new-exam-page/:subjectId", element: <ExamPage /> }, // <-- Fixed routing here
               { path: "new-exam-end", element: <ExamEnd /> },
               { path: "new-exam-review", element: <ExamReview /> },
-            ]
-          }
-        ]
-      }
-    ]
+            ],
+          },
+        ],
+      },
+    ],
   },
   {
     path: "/history",
     element: <ProtectedRoute />,
     children: [{ index: true, element: <HistoryPage /> }],
+  },
+  {
+    path: "/profile",
+    element: <ProtectedRoute />,
+    children: [{ index: true, element: <ProfilePage /> }],
   },
   { path: "/login", element: <Login /> },
   { path: "/signup", element: <Signup /> },
@@ -71,35 +77,45 @@ const router = createHashRouter([
 
 function App() {
   useEffect(() => {
-    supabase.from('questions').select('count', { count: 'exact', head: true })
+    supabase
+      .from("questions")
+      .select("count", { count: "exact", head: true })
       .then(({ count, error }) => {
-        if (error) console.error('❌ Supabase connection failed:', error)
-        else console.log('✅ Supabase connected! Total questions in DB:', count)
-      })
-  }, [])
+        if (error) console.error("❌ Supabase connection failed:", error);
+        else
+          console.log("✅ Supabase connected! Total questions in DB:", count);
+      });
+  }, []);
 
   // --- SHARED STATE ---
   const [examState, setExamState] = useState("menu");
   const [score, setScore] = useState(0);
-  const [detailedResults, setDetailedResults] = useState({ breakdown: {}, totals : {} });
+  const [detailedResults, setDetailedResults] = useState({
+    breakdown: {},
+    totals: {},
+  });
   const [reviewData, setReviewData] = useState([]);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showWaecLoginModal, setShowWaecLoginModal] = useState(false);
 
   // --- 🟠 JAMB SPECIFIC STATE ---
-  const [userName, setUserName] = useState(() => localStorage.getItem("exam_user") || "");
-  
+  const [userName, setUserName] = useState(
+    () => localStorage.getItem("exam_user") || "",
+  );
+
   const [selectedSubjects, setSelectedSubjects] = useState(() => {
     const saved = localStorage.getItem("exam_subjects");
     try {
       const parsed = saved ? JSON.parse(saved) : [];
       return Array.isArray(parsed) ? parsed : [];
-    } catch (error) { return []; }
+    } catch (error) {
+      return [];
+    }
   });
 
   const [config, setConfig] = useState(() => {
     const saved = localStorage.getItem("exam_config");
-    return saved ? JSON.parse(saved) : { duration: 35 }; 
+    return saved ? JSON.parse(saved) : { duration: 35 };
   });
 
   useEffect(() => {
@@ -108,24 +124,29 @@ function App() {
     localStorage.setItem("exam_config", JSON.stringify(config));
   }, [userName, selectedSubjects, config]);
 
-
   // --- 🔵 WAEC SPECIFIC STATE ---
-  const [waecUserName, setWaecUserName] = useState(() => localStorage.getItem("waec_user") || "");
-  
- const [waecSelectedSubjects, setWaecSelectedSubjects] = useState(() => {
+  const [waecUserName, setWaecUserName] = useState(
+    () => localStorage.getItem("waec_user") || "",
+  );
+
+  const [waecSelectedSubjects, setWaecSelectedSubjects] = useState(() => {
     const saved = localStorage.getItem("waec_subjects");
     try {
-        const parsed = saved ? JSON.parse(saved) : [];
-        // Force strings, lower case
-        return Array.isArray(parsed) ? parsed.map(s => String(s).toLowerCase()) : [];
+      const parsed = saved ? JSON.parse(saved) : [];
+      // Force strings, lower case
+      return Array.isArray(parsed)
+        ? parsed.map((s) => String(s).toLowerCase())
+        : [];
     } catch {
-        return [];
+      return [];
     }
-});
+  });
 
   const [waecConfig, setWaecConfig] = useState(() => {
-    const saved = localStorage.getItem("waec_config"); 
-    return saved ? JSON.parse(saved) : { duration: 45, numQuestions: MIN_WAEC_QUESTIONS, examType: 'waec' }; 
+    const saved = localStorage.getItem("waec_config");
+    return saved
+      ? JSON.parse(saved)
+      : { duration: 45, numQuestions: MIN_WAEC_QUESTIONS, examType: "waec" };
   });
 
   useEffect(() => {
@@ -134,51 +155,48 @@ function App() {
     localStorage.setItem("waec_config", JSON.stringify(waecConfig));
   }, [waecUserName, waecSelectedSubjects, waecConfig]);
 
-
   // --- 🎯 ACTIVE EXAM TRACKING ---
   const [activeExam, setActiveExam] = useState(() => {
     // Determine initial active exam based on which user is logged in
     const jambUser = localStorage.getItem("exam_user");
     const waecUser = localStorage.getItem("waec_user");
-    if (waecUser) return 'waec';
-    if (jambUser) return 'jamb';
-    return 'jamb'; // default
+    if (waecUser) return "waec";
+    if (jambUser) return "jamb";
+    return "jamb"; // default
   });
 
   // Function to switch active exam and clean up the opposite exam's session
   const switchExam = (examType) => {
-    if (examType === 'jamb') {
+    if (examType === "jamb") {
       // Clear WAEC ongoing exam session if any
       localStorage.removeItem("waec_exam_session");
       // Optional: clear subject progress keys (if you want full reset)
       // You can loop through waecSelectedSubjects and remove waec_progress_* keys
-      setActiveExam('jamb');
+      setActiveExam("jamb");
     } else {
       // Clear JAMB ongoing exam session(s)
-      Object.keys(localStorage).forEach(key => {
+      Object.keys(localStorage).forEach((key) => {
         if (key.startsWith("jamb_exam_session_")) {
           localStorage.removeItem(key);
         }
       });
-      setActiveExam('waec');
+      setActiveExam("waec");
     }
   };
-
-
 
   // --- ENTRY LOGIC ---
   const handleWaecEntry = (navigate) => {
     const enteredName = waecUserName?.trim();
     if (!enteredName || enteredName.length <= 2) {
-      setShowWaecLoginModal(true); 
+      setShowWaecLoginModal(true);
       return;
     }
 
-    const raw = localStorage.getItem("waec_exam_session"); 
+    const raw = localStorage.getItem("waec_exam_session");
     if (raw) {
-      setShowWaecLoginModal(true); 
+      setShowWaecLoginModal(true);
     } else {
-      navigate("/new-select-subject"); 
+      navigate("/new-select-subject");
     }
   };
 
@@ -191,54 +209,71 @@ function App() {
       return;
     }
 
-    const sessionKey = Object.keys(localStorage).find(key => {
+    const sessionKey = Object.keys(localStorage).find((key) => {
       if (!key.startsWith("jamb_exam_session_")) return false;
       try {
         const data = JSON.parse(localStorage.getItem(key));
-        return data && data.userName?.toLowerCase() === enteredName.toLowerCase();
-      } catch (e) { return false; }
+        return (
+          data && data.userName?.toLowerCase() === enteredName.toLowerCase()
+        );
+      } catch (e) {
+        return false;
+      }
     });
 
     if (sessionKey) {
       setShowLoginModal(true);
     } else {
-      navigate('/select-subject');
+      navigate("/select-subject");
     }
   };
 
   return (
-    <ExamStateContext.Provider value={{ 
-      // Shared
-      examState, setExamState, 
-      score, setScore, 
-      detailedResults, setDetailedResults, 
-      reviewData, setReviewData, 
-      showLoginModal, setShowLoginModal,
-      showWaecLoginModal, setShowWaecLoginModal, 
-      handleExamEntry, handleWaecEntry,
-      
-      // JAMB
-      userName, setUserName,
-      config, setConfig, 
-      selectedSubjects, setSelectedSubjects,
-      
-      // WAEC (These were missing from your previous provider!)
-      waecUserName, setWaecUserName,
-      waecConfig, setWaecConfig,
-      waecSelectedSubjects, setWaecSelectedSubjects,
+    <ExamStateContext.Provider
+      value={{
+        // Shared
+        examState,
+        setExamState,
+        score,
+        setScore,
+        detailedResults,
+        setDetailedResults,
+        reviewData,
+        setReviewData,
+        showLoginModal,
+        setShowLoginModal,
+        showWaecLoginModal,
+        setShowWaecLoginModal,
+        handleExamEntry,
+        handleWaecEntry,
 
-       // Active Exam
-      activeExam,
-      switchExam,
-    }}>
+        // JAMB
+        userName,
+        setUserName,
+        config,
+        setConfig,
+        selectedSubjects,
+        setSelectedSubjects,
+
+        // WAEC (These were missing from your previous provider!)
+        waecUserName,
+        setWaecUserName,
+        waecConfig,
+        setWaecConfig,
+        waecSelectedSubjects,
+        setWaecSelectedSubjects,
+
+        // Active Exam
+        activeExam,
+        switchExam,
+      }}
+    >
       <RouterProvider router={router} />
     </ExamStateContext.Provider>
   );
 }
 
 export default App;
-
-
 
 // ... imports stay the same
 
@@ -267,9 +302,9 @@ export default App;
 //         <Routes>
 //           {/* LandingPage is the Parent Layout */}
 //           <Route path="/" element={<LandingPage />}>
-            
+
 //             {/* These are the "Outlets" - they render inside LandingPage's <Outlet /> */}
-//             <Route index element={<Dashboard />} /> 
+//             <Route index element={<Dashboard />} />
 //             <Route path='info' element={<NewsAndInfo />} />
 
 //             <Route element ={<ExamLayout />}>
