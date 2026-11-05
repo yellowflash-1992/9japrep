@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom"; // Added useNavigate
 import PremiumUpgrade from "../Components/PremiumUpgrade";
 import { useAuth } from "../Hooks/useAuth";
@@ -15,6 +15,14 @@ function LandingPage() {
     location.pathname.includes("exam") || location.pathname.includes("subject");
 
   const [isOpen, setIsOpen] = useState(false);
+
+  const scrollRef = useRef(null);
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = 0;
+    }
+  }, [location.pathname]);
 
   const isExamActive =
     location.pathname.startsWith("/exam/") ||
@@ -57,7 +65,10 @@ function LandingPage() {
 
   if (isExamActive) {
     return (
-      <div className="min-h-screen w-full bg-white overflow-y-auto">
+      <div
+        ref={scrollRef}
+        className="min-h-screen w-full bg-white overflow-y-auto"
+      >
         <Outlet /> {/* This will render ONLY the ExamPage */}
       </div>
     );
@@ -77,6 +88,7 @@ function LandingPage() {
 
           {/* Scroll container — main + aside + footer all scroll together */}
           <div
+            ref={scrollRef}
             className="flex-1 min-h-0 overflow-y-auto
       md:[&::-webkit-scrollbar]:w-0.5 bg-[#E2E8F0]
       md:[scrollbar-width:thin] md:transition-all"
