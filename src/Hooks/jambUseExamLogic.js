@@ -3,6 +3,7 @@ import { useState, useEffect, useContext, useCallback, useRef, useMemo } from "r
 import { ExamStateContext } from "../Helpers/Contexts";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase";
+import { useAuth } from "./useAuth";
 
 const SESSION_PREFIX = "jamb_exam_session_";
 
@@ -19,6 +20,7 @@ const getAttemptId = () => {
 export const useExam = (subjectId) => {
     const { userName, setScore, selectedSubjects, config, setDetailedResults, setReviewData } = useContext(ExamStateContext);
     const navigate = useNavigate();
+    const { user } = useAuth();
 
     const [isFinishing, setIsFinishing] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
@@ -29,6 +31,16 @@ export const useExam = (subjectId) => {
     const [flagged, setFlagged] = useState([]);
     const [selectedOption, setSelectedOption] = useState(null);
     const [tabSwitchCount, setTabSwitchCount] = useState(0);
+    const [isPremium, setIsPremium] = useState(false);
+
+    useEffect(() => {
+        const fetchPremium = async () => {
+            if (!user?.id) return;
+            const { data } = await supabase.from('profiles').select('is_premium').eq('id', user.id).single();
+            setIsPremium(data?.is_premium || false);
+        };
+        fetchPremium();
+    }, [user?.id]);
 
     const isFinishingRef = useRef(false);
     const saveTimerRef = useRef(null);
@@ -97,10 +109,11 @@ export const useExam = (subjectId) => {
                 const isFull = config.duration === 120;
                 const isEnglish = normalizedId === "english";
                 const count = isEnglish ? (isFull ? 20 : 10) : (isFull ? 10 : 5);
+                const finalCount = isPremium ? count : Math.min(10, count);
 
                 const shuffled = [...rawPool]
                     .sort(() => Math.random() - 0.5)
-                    .slice(0, count)
+                    .slice(0, finalCount)
                     .map(q => ({
                         ...q,
                         prompt: q.prompt ?? q.question_text ?? q.question ?? "",
@@ -122,7 +135,7 @@ export const useExam = (subjectId) => {
         return () => {
             isActive = false;
         };
-    }, [subjectId, config.duration]);
+    }, [subjectId, config.duration, isPremium]);
 
     // Save progress to LocalStorage
     useEffect(() => {
@@ -388,6 +401,7 @@ export const useExam = (subjectId) => {
         finishExam,
         jumpToQuestion,
         toggleFlag,
-        isLastSubject
+        isLastSubject,
+        isPremium
     };
 };

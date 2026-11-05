@@ -5,7 +5,7 @@ import {
   FaChevronRight,
   FaFlag,
 } from "react-icons/fa";
-import { NavLink, useNavigate, useParams } from "react-router-dom";
+import { NavLink, useNavigate, useParams, Link } from "react-router-dom";
 import "../App.css";
 import QuestionCard from "../Components/JambQuestionCard";
 import QuestionNavigator from "../Components/JambQuestionNavigator";
@@ -37,6 +37,7 @@ export default function JambExamPage() {
     jumpToQuestion,
     toggleFlag,
     isLastSubject,
+    isPremium,
   } = useExam(subjectId);
 
   const getButtonText = () => {
@@ -121,6 +122,22 @@ export default function JambExamPage() {
           />
         </div>
       </nav>
+
+      {!isPremium && (
+        <div className="max-w-7xl mx-auto mt-4 px-4">
+          <div className="rounded-xl bg-amber-50 border border-amber-200 px-4 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <p className="text-sm text-amber-800">
+              You are on the Free Plan (10 questions). Unlock all 40 questions for ₦2,000.
+            </p>
+            <Link
+              to="/dashboard"
+              className="inline-block text-sm font-bold text-white bg-amber-500 hover:bg-amber-600 px-4 py-2 rounded-lg"
+            >
+              Upgrade
+            </Link>
+          </div>
+        </div>
+      )}
 
       <div className="max-w-7xl mx-auto px-4 md:px-6 mt-4">
         {/* PROGRESS HEADER */}
