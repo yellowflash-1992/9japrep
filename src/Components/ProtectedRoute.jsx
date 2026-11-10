@@ -4,9 +4,11 @@ import { ExamStateContext } from "../Helpers/Contexts";
 import { useAuth } from "../Hooks/useAuth";
 
 export default function ProtectedRoute() {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const location = useLocation();
   const { selectedSubjects, waecSelectedSubjects } = useContext(ExamStateContext);
+
+  if (loading) return <div>Loading...</div>;
 
   if (!user) {
     return <Navigate to="/login" state={{ from: location }} replace />;

@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom"; // Added useNavigate
 import PremiumUpgrade from "../Components/PremiumUpgrade";
 import { useAuth } from "../Hooks/useAuth";
@@ -95,14 +95,14 @@ function LandingPage() {
           >
             <div className="flex flex-col xl:flex-row min-w-0">
               <main
-                className={`relative text-slate-800 transition-all px-6 min-w-0 ${hidePartLayout || hideAside ? "flex-1" : "flex-[1.5]"}`}
+                className={`order-1 relative text-slate-800 transition-all px-6 min-w-0 ${hidePartLayout || hideAside ? "flex-1" : "flex-[1.5]"}`}
               >
                 <Outlet context={{ handleStartExam }} />
               </main>
 
               {!hidePartLayout && !hideAside && (
                 <aside
-                  className="flex flex-col w-full xl:w-auto xl:flex-1 mt-6 xl:mt-0 border-t xl:border-t-0 xl:border-l px-4 xl:mx-3
+                  className="order-2 flex flex-col w-full xl:w-auto xl:flex-1 mt-6 xl:mt-0 border-t xl:border-t-0 xl:border-l px-4 xl:mx-3
               border-slate-200 rounded-sm"
                 >
                   <NewsAndInfo />

@@ -17,6 +17,7 @@ const DEFAULT_TOOLS = [
     text: "text-purple-900",
     type: "internal",
     to: "/exam-menu",
+    featured: true,
   },
   {
     label: "Past Questions",
@@ -45,17 +46,43 @@ const DEFAULT_TOOLS = [
 ];
 
 function ToolCard({ tool }) {
+  if (tool.featured) {
+    return (
+      <Link
+        to={tool.to}
+        className="cursor-pointer md:px-2 group relative"
+        aria-label={tool.label}
+      >
+        <div className="rounded-lg p-3 md:p-4 h-full flex-col transition-transform items-center flex shadow-md hover:shadow-lg hover:scale-105 bg-gradient-to-br from-purple-600 to-purple-800 text-white">
+          <span className="absolute top-1 right-1 text-[8px] font-extrabold bg-amber-400 text-amber-900 px-1.5 py-0.5 rounded-full uppercase tracking-wider">
+            Start
+          </span>
+
+          {/* FLEX-1 forces text to center, keeping icons aligned */}
+          <h2 className="flex-1 flex items-center justify-center text-center mb-2 text-xs md:text-sm font-bold leading-tight">
+            {tool.label}
+          </h2>
+          <div className="flex justify-center rounded-full bg-white/20 p-2">
+            <tool.icon className="h-6 w-6 md:h-8 md:w-8 text-white" />
+          </div>
+        </div>
+      </Link>
+    );
+  }
+
+  // Standard card — unchanged
   const inner = (
     <div
-      className={`${tool.color} rounded-lg p-4 hover:scale-105 h-full flex-col transition-transform items-center justify-between shadow-sm flex hover:shadow-md`}
+      className={`${tool.color} rounded-lg p-3 md:p-4 hover:scale-105 h-full flex-col transition-transform items-center flex shadow-sm hover:shadow-md`}
     >
+      {/* FLEX-1 forces text to center, keeping icons aligned */}
       <h2
-        className={`mb-3 md:mb-5 text-[10px] md:text-sm font-bold ${tool.text}`}
+        className={`flex-1 flex items-center justify-center text-center mb-2 text-xs md:text-sm font-bold leading-tight ${tool.text}`}
       >
         {tool.label}
       </h2>
-      <div className="flex justify-center rounded-full bg-white/50 md:bg-none hover:bg-purple-900/5">
-        <tool.icon className={`h-8 w-8 md:h-8 md:w-8 ${tool.text}`} />
+      <div className="flex justify-center rounded-full bg-white/50 md:bg-none hover:bg-purple-900/5 p-2">
+        <tool.icon className={`h-6 w-6 md:h-8 md:w-8 ${tool.text}`} />
       </div>
     </div>
   );
@@ -87,7 +114,7 @@ function ToolCard({ tool }) {
 
 export default function QuickGrid({ tools = DEFAULT_TOOLS }) {
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center text-sm font-bold md:px-12 md:items-stretch px-8 sm:px-0 mx-auto max-w-lg sm:max-w-full">
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 lg:gap-6 w-full">
       {tools.map((tool) => (
         <ToolCard key={tool.label} tool={tool} />
       ))}

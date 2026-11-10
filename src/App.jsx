@@ -25,6 +25,7 @@ import Login from "./Pages/Login";
 import NewsAndInfo from "./Pages/NewsAndInfo";
 import ProfilePage from "./Pages/ProfilePage";
 import Signup from "./Pages/Signup";
+import StudyMaterials from "./Pages/StudyMaterials";
 import SubjectSelect from "./Pages/SubjectSelect";
 
 const router = createHashRouter([
@@ -37,6 +38,8 @@ const router = createHashRouter([
       {
         element: <ProtectedRoute />,
         children: [
+          { path: "study-materials", element: <StudyMaterials /> }, // ← NEW
+
           {
             element: <ExamLayout />,
             children: [
@@ -61,6 +64,7 @@ const router = createHashRouter([
       },
     ],
   },
+
   {
     path: "/history",
     element: <ProtectedRoute />,
@@ -274,52 +278,3 @@ function App() {
 }
 
 export default App;
-
-// ... imports stay the same
-
-// function App() {
-//   const [examState, setExamState] = useState("menu");
-//   const [userName, setUserName] = useState("");
-//   const [config, setConfig] = useState({
-//     duration:5, numQuestions:2
-//   })
-
-//   const [score, setScore] = useState(0);
-//   const [selectedSubjects, setSelectedSubjects] = useState([]);
-//   const [detailedResults, setDetailedResults] = useState({
-//     breakdown: {},
-//     totals : {}
-//   });
-
-//   const [reviewData, setReviewData] = useState([]);
-
-//   return (
-//     <ExamStateContext.Provider value={{ examState, setExamState, userName, setUserName,
-//       config, setConfig,score, setScore, selectedSubjects, setSelectedSubjects,detailedResults,
-//       setDetailedResults, reviewData, setReviewData
-//      }}>
-//       <BrowserRouter>
-//         <Routes>
-//           {/* LandingPage is the Parent Layout */}
-//           <Route path="/" element={<LandingPage />}>
-
-//             {/* These are the "Outlets" - they render inside LandingPage's <Outlet /> */}
-//             <Route index element={<Dashboard />} />
-//             <Route path='info' element={<NewsAndInfo />} />
-
-//             <Route element ={<ExamLayout />}>
-//             <Route path='select-subject' element={<SubjectSelect />} />
-//             <Route path='exam-config' element={<ExamConfig />} />
-//             <Route path='exam-menu' element={<ExamMenu />} />
-//             <Route path="exam/:subjectId" element={<ExamPage />} />
-//             <Route path="exam-end" element={<ExamEnd />} />
-//             <Route path="exam-review" element={<ExamReview />} />
-//             </Route>
-
-//           </Route>
-//         </Routes>
-//       </BrowserRouter>
-//     </ExamStateContext.Provider>
-//   );
-// }
-// export default App;

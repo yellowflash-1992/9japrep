@@ -17,6 +17,19 @@ export default function SubjectSelect() {
         }
     }, [waecSelectedSubjects, setWaecSelectedSubjects]);
 
+    useEffect(() => {
+        const saved = localStorage.getItem('temp_waec_subjects');
+        if (saved) {
+            try {
+                setWaecSelectedSubjects(JSON.parse(saved));
+            } catch (e) {}
+        }
+    }, [setWaecSelectedSubjects]);
+
+    useEffect(() => {
+        localStorage.setItem('temp_waec_subjects', JSON.stringify(waecSelectedSubjects));
+    }, [waecSelectedSubjects]);
+
     const Min_Subjects = 1;
     const Max_Subjects = 4;
 
@@ -43,6 +56,7 @@ export default function SubjectSelect() {
 
     const handleProceed = () => {
         if (isSelectionValid) {
+            localStorage.removeItem('temp_waec_subjects');
             navigate("/new-exam-config");
         }
     };

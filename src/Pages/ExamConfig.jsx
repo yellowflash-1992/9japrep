@@ -107,13 +107,21 @@ function ExamConfig() {
                     </div>
 
                     {/* Proceed Button */}
-                    <button
-                        onClick={() => navigate('/new-exam-menu')}
-                        className="w-full md:w-auto px-8 py-2.5 text-sm md:text-base font-bold rounded-xl bg-rose-600 text-white
-                        hover:bg-rose-700 active:scale-[0.98] transition-all shadow-lg shadow-rose-100 flex items-center justify-center gap-2"
-                    >
-                        Confirm & Start Exam
-                    </button>
+                    <div className="flex gap-3">
+                        <button
+                            onClick={() => navigate('/new-select-subject')}
+                            className="bg-slate-200 text-slate-700 hover:bg-slate-300 px-6 py-2.5 rounded-xl font-bold"
+                        >
+                            Back
+                        </button>
+                        <button
+                            onClick={() => navigate('/new-exam-menu')}
+                            className="w-full md:w-auto px-8 py-2.5 text-sm md:text-base font-bold rounded-xl bg-rose-600 text-white
+                            hover:bg-rose-700 active:scale-[0.98] transition-all shadow-lg shadow-rose-100 flex items-center justify-center gap-2"
+                        >
+                            Confirm & Start Exam
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
