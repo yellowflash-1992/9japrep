@@ -122,11 +122,28 @@ function App() {
     return saved ? JSON.parse(saved) : { duration: 35 };
   });
 
+  // --- 🟣 PRACTICE MODE (topic / difficulty drills) ---
+  const [practiceConfig, setPracticeConfig] = useState(() => {
+    const saved = localStorage.getItem("practice_config");
+    try {
+      const parsed = saved ? JSON.parse(saved) : null;
+      return parsed && typeof parsed === "object"
+        ? { subject: "", topic: "", difficulty: "", numQuestions: 10, ...parsed }
+        : { subject: "", topic: "", difficulty: "", numQuestions: 10 };
+    } catch {
+      return { subject: "", topic: "", difficulty: "", numQuestions: 10 };
+    }
+  });
+
   useEffect(() => {
     localStorage.setItem("exam_user", userName);
     localStorage.setItem("exam_subjects", JSON.stringify(selectedSubjects));
     localStorage.setItem("exam_config", JSON.stringify(config));
   }, [userName, selectedSubjects, config]);
+
+  useEffect(() => {
+    localStorage.setItem("practice_config", JSON.stringify(practiceConfig));
+  }, [practiceConfig]);
 
   // --- 🔵 WAEC SPECIFIC STATE ---
   const [waecUserName, setWaecUserName] = useState(
@@ -258,6 +275,10 @@ function App() {
         setConfig,
         selectedSubjects,
         setSelectedSubjects,
+
+        // Practice mode
+        practiceConfig,
+        setPracticeConfig,
 
         // WAEC (These were missing from your previous provider!)
         waecUserName,

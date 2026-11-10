@@ -7,7 +7,7 @@ import { supabase } from '../lib/supabase';
 import { useAuth } from '../Hooks/useAuth';
 
 function JambExamMenu() {
-  const { userName, selectedSubjects, config } = useContext(ExamStateContext);
+  const { userName, selectedSubjects, config, setPracticeConfig } = useContext(ExamStateContext);
   const { user } = useAuth();
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -52,6 +52,9 @@ function JambExamMenu() {
 
   setIsModalOpen(false);
 
+  // 0. Clear any leftover practice drill so /exam/:subjectId loads as a mock exam
+  setPracticeConfig({ subject: "", topic: "", difficulty: "", numQuestions: 10 });
+
   // 1. Setup a clean session
   // We save the TOTAL minutes and the current timeLeft in seconds
   const sessionData = {
@@ -67,7 +70,7 @@ function JambExamMenu() {
 
   // 2. Clear any leftover subject data from a previous attempt
   Object.keys(localStorage).forEach(key => {
-    if (key.startsWith("jamb_exam_session_")) {
+    if (key.startsWith("jamb_exam_session_") || key.startsWith("jamb_practice_")) {
       localStorage.removeItem(key);
     }
   });

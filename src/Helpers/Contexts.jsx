@@ -24,6 +24,10 @@ export const ExamStateContext = createContext({
   config: { duration: 30, numQuestions: 20 },
   setConfig: () => {},
 
+  // Practice mode (topic / difficulty drills)
+  practiceConfig: { subject: "", topic: "", difficulty: "", numQuestions: 10 },
+  setPracticeConfig: () => {},
+
   userName: "",
   setUserName: () => {},
 

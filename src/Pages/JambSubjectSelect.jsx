@@ -1,15 +1,44 @@
 import { useNavigate } from "react-router-dom";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { ExamStateContext } from "../Helpers/Contexts";
 import { SUBJECT_META } from "../Helpers/subjectMeta";
-import { FaPlus, FaTimes } from "react-icons/fa";
+import { DIFFICULTIES, fetchTopics } from "../Helpers/questionBank";
+import { FaPlus, FaTimes, FaSpinner } from "react-icons/fa";
 import { IoMdClose } from "react-icons/io";
 import '../App.css';
 
+const QUESTION_COUNTS = [5, 10, 20, 40];
+
+const DIFFICULTY_META = {
+  easy: { label: "Easy", dot: "bg-emerald-500", active: "border-emerald-500 bg-emerald-50 text-emerald-700" },
+  medium: { label: "Medium", dot: "bg-amber-500", active: "border-amber-500 bg-amber-50 text-amber-700" },
+  hard: { label: "Hard", dot: "bg-rose-500", active: "border-rose-500 bg-rose-50 text-rose-700" },
+};
+
 export default function JambSubjectSelect() {
-  const { selectedSubjects, setSelectedSubjects } = useContext(ExamStateContext);
+  const {
+    selectedSubjects,
+    setSelectedSubjects,
+    practiceConfig,
+    setPracticeConfig,
+  } = useContext(ExamStateContext);
   const navigate = useNavigate();
   const [showPicker, setShowPicker] = useState(false);
+
+  // --- MODE: "mock" (default, unchanged flow) or "practice" (topic drill) ---
+  const [mode, setMode] = useState("mock");
+  const [practiceSubject, setPracticeSubject] = useState(
+    practiceConfig?.subject || "",
+  );
+  const [topic, setTopic] = useState(practiceConfig?.topic || "");
+  const [difficulty, setDifficulty] = useState(practiceConfig?.difficulty || "");
+  const [numQuestions, setNumQuestions] = useState(
+    practiceConfig?.numQuestions || 10,
+  );
+
+  const [topics, setTopics] = useState([]);
+  const [isLoadingTopics, setIsLoadingTopics] = useState(false);
+  const [topicsError, setTopicsError] = useState("");
 
   const MAX_SUBJECTS = 4;
 
@@ -36,13 +65,71 @@ export default function JambSubjectSelect() {
     }
   };
 
+  // Load topics for the chosen practice subject.
+  useEffect(() => {
+    let isActive = true;
+
+    if (mode !== "practice" || !practiceSubject) return undefined;
+
+    const loadTopics = async () => {
+      setIsLoadingTopics(true);
+      setTopicsError("");
+      const { data, error } = await fetchTopics({
+        examType: "jamb",
+        subject: practiceSubject,
+      });
+      if (!isActive) return;
+
+      if (error) {
+        console.error("Failed to load topics:", error);
+        setTopicsError("Could not load topics. You can still practise all topics.");
+        setTopics([]);
+      } else {
+        setTopics(data);
+      }
+      setIsLoadingTopics(false);
+    };
+
+    loadTopics();
+    return () => {
+      isActive = false;
+    };
+  }, [mode, practiceSubject]);
+
+  const handleSelectPracticeSubject = (id) => {
+    setPracticeSubject(id);
+    setTopic(""); // topics belong to a subject
+    setTopics([]);
+    setTopicsError("");
+  };
+
   const handleProceed = () => {
+    // --- PRACTICE MODE: same /exam/:subjectId route, practice config attached ---
+    if (mode === "practice") {
+      if (!practiceSubject) return;
+
+      setPracticeConfig({
+        subject: practiceSubject,
+        topic,
+        difficulty,
+        numQuestions,
+      });
+      navigate(`/exam/${practiceSubject}`);
+      return;
+    }
+
+    // --- FULL MOCK EXAM: original behaviour, untouched ---
     if (subjects.length === MAX_SUBJECTS) {
       // Sync the cleaned-up array back to context right before moving on
       setSelectedSubjects(subjects);
       navigate("/exam-config");
     }
   };
+
+  const canProceed =
+    mode === "practice"
+      ? Boolean(practiceSubject)
+      : subjects.length === MAX_SUBJECTS;
 
   const handleOutsideClick = (e) => {
     if (e.target.id === "modalBackdrop") setShowPicker(false);
@@ -59,10 +146,49 @@ export default function JambSubjectSelect() {
           Prepare for Success!
         </h1>
         <p className="text-slate-500 max-w-md mx-auto">
-          English is compulsory. Choose <strong className="text-blue-600">3 additional subjects</strong> to complete your JAMB profile.
+          {mode === "practice"
+            ? "Drill one subject, one topic, one difficulty at a time."
+            : <>English is compulsory. Choose <strong className="text-blue-600">3 additional subjects</strong> to complete your JAMB profile.</>}
         </p>
       </div>
 
+      {/* --- MODE TOGGLE --- */}
+      <div className="mx-auto mb-8 flex max-w-md rounded-2xl bg-slate-100 p-1">
+        {[
+          { id: "mock", label: "Full Mock Exam" },
+          { id: "practice", label: "Practice by Topic" },
+        ].map((option) => (
+          <button
+            key={option.id}
+            type="button"
+            onClick={() => setMode(option.id)}
+            className={`flex-1 rounded-xl px-3 py-2.5 text-xs md:text-sm font-black transition-all ${
+              mode === option.id
+                ? "bg-white text-blue-700 shadow-sm"
+                : "text-slate-500 hover:text-slate-700"
+            }`}
+          >
+            {option.label}
+          </button>
+        ))}
+      </div>
+
+      {mode === "practice" ? (
+        <PracticePanel
+          practiceSubject={practiceSubject}
+          onSelectSubject={handleSelectPracticeSubject}
+          topics={topics}
+          isLoadingTopics={isLoadingTopics}
+          topicsError={topicsError}
+          topic={topic}
+          setTopic={setTopic}
+          difficulty={difficulty}
+          setDifficulty={setDifficulty}
+          numQuestions={numQuestions}
+          setNumQuestions={setNumQuestions}
+        />
+      ) : (
+      <>
       {/* Subject Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
         {slots.map((subjectId, index) => {
@@ -174,24 +300,212 @@ export default function JambSubjectSelect() {
         </div>
       )}
 
+      </>
+      )}
+
       {/* Proceed Button */}
       <div className="mt-8 text-center">
         <button
           onClick={handleProceed}
-          disabled={subjects.length !== MAX_SUBJECTS}
+          disabled={!canProceed}
           className={`group relative px-4 py-2 md:px-8 md:py-3 rounded-2xl 
             font-black text-sm md:text-lg shadow-xl transition-all active:scale-95 ${
-            subjects.length === MAX_SUBJECTS
+            canProceed
               ? "bg-blue-600 text-white hover:bg-blue-700 hover:shadow-blue-200"
               : "bg-slate-200 text-slate-400 cursor-not-allowed shadow-none"
           }`}
         >
-          {subjects.length === MAX_SUBJECTS ? "Generate Jamb Exam →" : `Select ${MAX_SUBJECTS - subjects.length} More to Start`}
+          {mode === "practice"
+            ? practiceSubject
+              ? "Start Practice →"
+              : "Select a Subject to Practise"
+            : subjects.length === MAX_SUBJECTS
+              ? "Generate Jamb Exam →"
+              : `Select ${MAX_SUBJECTS - subjects.length} More to Start`}
         </button>
         <p className="mt-4 text-sm text-slate-400 font-medium italic">
-          Total Selected: {subjects.length} / {MAX_SUBJECTS}
+          {mode === "practice"
+            ? practiceSubject
+              ? `${SUBJECT_META[practiceSubject]?.name || practiceSubject} · ${topic || "All topics"} · ${difficulty || "Mixed"} · ${numQuestions} questions`
+              : "Practice mode uses a single subject"
+            : `Total Selected: ${subjects.length} / ${MAX_SUBJECTS}`}
         </p>
       </div>
+    </div>
+  );
+}
+
+function PracticePanel({
+  practiceSubject,
+  onSelectSubject,
+  topics,
+  isLoadingTopics,
+  topicsError,
+  topic,
+  setTopic,
+  difficulty,
+  setDifficulty,
+  numQuestions,
+  setNumQuestions,
+}) {
+  return (
+    <div className="space-y-6">
+      {/* 1. Subject */}
+      <section className="rounded-3xl border border-slate-100 bg-white p-5 shadow-sm md:p-6">
+        <h2 className="mb-4 text-xs font-black uppercase tracking-widest text-slate-400">
+          1. Subject
+        </h2>
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
+          {Object.entries(SUBJECT_META).map(([id, meta]) => {
+            const Icon = meta.icon;
+            const isActive = practiceSubject === id;
+            return (
+              <button
+                key={id}
+                type="button"
+                onClick={() => onSelectSubject(id)}
+                className={`flex items-center gap-2 rounded-2xl border-2 px-3 py-2.5 text-left transition-all active:scale-[0.98] ${
+                  isActive
+                    ? "border-blue-600 bg-blue-50"
+                    : "border-slate-100 bg-white hover:border-slate-200"
+                }`}
+              >
+                <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl ${meta.bg} ${meta.color}`}>
+                  <Icon size={14} />
+                </span>
+                <span className={`truncate text-xs font-bold ${isActive ? "text-blue-700" : "text-slate-600"}`}>
+                  {meta.name}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* 2. Topic */}
+      <section className={`rounded-3xl border border-slate-100 bg-white p-5 shadow-sm md:p-6 ${practiceSubject ? "" : "pointer-events-none opacity-50"}`}>
+        <h2 className="mb-1 text-xs font-black uppercase tracking-widest text-slate-400">
+          2. Topic
+        </h2>
+        <p className="mb-4 text-xs text-slate-400">
+          {practiceSubject ? "Leave on “All topics” for a mixed drill." : "Choose a subject first."}
+        </p>
+
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={() => setTopic("")}
+            className={`rounded-full border-2 px-4 py-2 text-xs font-bold transition-all active:scale-95 ${
+              !topic
+                ? "border-blue-600 bg-blue-600 text-white"
+                : "border-slate-100 bg-slate-50 text-slate-600 hover:border-slate-200"
+            }`}
+          >
+            All topics
+          </button>
+
+          {isLoadingTopics &&
+            [1, 2, 3].map((key) => (
+              <span key={key} className="h-9 w-24 animate-pulse rounded-full bg-slate-100" />
+            ))}
+
+          {!isLoadingTopics &&
+            topics.map((item) => (
+              <button
+                key={item}
+                type="button"
+                onClick={() => setTopic(item)}
+                className={`rounded-full border-2 px-4 py-2 text-xs font-bold transition-all active:scale-95 ${
+                  topic === item
+                    ? "border-blue-600 bg-blue-600 text-white"
+                    : "border-slate-100 bg-slate-50 text-slate-600 hover:border-slate-200"
+                }`}
+              >
+                {item}
+              </button>
+            ))}
+        </div>
+
+        {isLoadingTopics && (
+          <p className="mt-3 flex items-center gap-2 text-xs font-medium text-slate-400">
+            <FaSpinner className="animate-spin" /> Loading topics…
+          </p>
+        )}
+
+        {!isLoadingTopics && topicsError && (
+          <p className="mt-3 text-xs font-medium text-amber-600">{topicsError}</p>
+        )}
+
+        {!isLoadingTopics && practiceSubject && !topicsError && topics.length === 0 && (
+          <p className="mt-3 text-xs font-medium text-slate-400">
+            No topics tagged for this subject yet — you will get a mixed drill.
+          </p>
+        )}
+      </section>
+
+      {/* 3. Difficulty */}
+      <section className="rounded-3xl border border-slate-100 bg-white p-5 shadow-sm md:p-6">
+        <h2 className="mb-4 text-xs font-black uppercase tracking-widest text-slate-400">
+          3. Difficulty
+        </h2>
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+          <button
+            type="button"
+            onClick={() => setDifficulty("")}
+            className={`rounded-2xl border-2 px-3 py-3 text-left transition-all active:scale-[0.98] ${
+              difficulty === ""
+                ? "border-blue-600 bg-blue-50"
+                : "border-slate-100 hover:border-slate-200"
+            }`}
+          >
+            <span className="block text-sm font-black text-slate-700">Mixed</span>
+            <span className="block text-[10px] font-medium text-slate-400">All levels</span>
+          </button>
+
+          {DIFFICULTIES.map((level) => {
+            const meta = DIFFICULTY_META[level];
+            const isActive = difficulty === level;
+            return (
+              <button
+                key={level}
+                type="button"
+                onClick={() => setDifficulty(level)}
+                className={`rounded-2xl border-2 px-3 py-3 text-left transition-all active:scale-[0.98] ${
+                  isActive ? meta.active : "border-slate-100 hover:border-slate-200"
+                }`}
+              >
+                <span className="flex items-center gap-1.5 text-sm font-black">
+                  <span className={`h-2 w-2 rounded-full ${meta.dot}`} />
+                  {meta.label}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* 4. Question count */}
+      <section className="rounded-3xl border border-slate-100 bg-white p-5 shadow-sm md:p-6">
+        <h2 className="mb-4 text-xs font-black uppercase tracking-widest text-slate-400">
+          4. Questions
+        </h2>
+        <div className="flex flex-wrap gap-2">
+          {QUESTION_COUNTS.map((count) => (
+            <button
+              key={count}
+              type="button"
+              onClick={() => setNumQuestions(count)}
+              className={`min-w-16 rounded-xl border-2 px-4 py-2 text-sm font-black transition-all active:scale-95 ${
+                numQuestions === count
+                  ? "border-blue-600 bg-blue-600 text-white"
+                  : "border-slate-100 text-slate-600 hover:border-slate-200"
+              }`}
+            >
+              {count}
+            </button>
+          ))}
+        </div>
+      </section>
     </div>
   );
 }

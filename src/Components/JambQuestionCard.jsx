@@ -1,14 +1,34 @@
 import React from 'react';
+import { difficultyStyles } from '../Helpers/questionBank';
 
 export default function QuestionCard({ question, selectedOption, chooseOption }) {
   if (!question) return null;
   const labels = ["A", "B", "C", "D"];
   const prompt = question.prompt ?? question.question_text ?? question.question ?? "";
+  const difficulty = String(question.difficulty ?? "").toLowerCase();
 
   return (
     <div className="w-full min-w-0 space-y-6">
       {/* Question Prompt */}
       <div className="w-full min-w-0 bg-slate-50 p-4 md:p-6 rounded-2xl border border-slate-100">
+        {(question.topic || difficulty) && (
+          <div className="mb-3 flex flex-wrap items-center gap-2">
+            {question.topic && (
+              <span className="rounded-full bg-white px-2.5 py-0.5 text-[10px] font-bold text-slate-600 border border-slate-200">
+                {question.topic}
+              </span>
+            )}
+            {difficulty && (
+              <span
+                className={`rounded-full border px-2.5 py-0.5 text-[10px] font-bold capitalize ${
+                  difficultyStyles[difficulty] || "border-slate-200 bg-white text-slate-600"
+                }`}
+              >
+                {difficulty}
+              </span>
+            )}
+          </div>
+        )}
         <h2 className="text-xl md:text-2xl font-bold text-slate-800 leading-relaxed whitespace-pre-wrap break-words">
           {prompt}
         </h2>

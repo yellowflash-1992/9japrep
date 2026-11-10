@@ -16,9 +16,10 @@ import { toSentenceCase } from "../Helpers/stringUtils";
 import { useExam } from "../Hooks/jambUseExamLogic";
 
 export default function JambExamPage() {
-  const { selectedSubjects } = useContext(ExamStateContext);
+  const { selectedSubjects, practiceConfig } = useContext(ExamStateContext);
   const { subjectId } = useParams();
   const navigate = useNavigate();
+  const isPractice = Boolean(practiceConfig?.subject);
 
   const {
     userName,
@@ -42,17 +43,20 @@ export default function JambExamPage() {
 
   const getButtonText = () => {
     if (currentQuestion < questions.length - 1) return "Next Question";
+    if (isPractice) return "Finish Practice";
     if (!isLastSubject) return "Next Subject";
     return "Submit Exam";
   };
 
-  const tabSubjects =
-    selectedSubjects?.map((sub) => {
-      const id = sub.toLowerCase().includes("english")
-        ? "english"
-        : sub.toLowerCase().split(" ")[0];
-      return { id, name: sub };
-    }) || [];
+  // Practice drills are single-subject, so no subject tabs are shown.
+  const tabSubjects = isPractice
+    ? []
+    : selectedSubjects?.map((sub) => {
+        const id = sub.toLowerCase().includes("english")
+          ? "english"
+          : sub.toLowerCase().split(" ")[0];
+        return { id, name: sub };
+      }) || [];
 
   const handleQuit = () => {
     if (
@@ -73,7 +77,7 @@ export default function JambExamPage() {
             {loadError || `Questions for "${toSentenceCase(subjectId)}" are currently being updated.`}
           </p>
           <NavLink
-            to="/exam-config"
+            to={isPractice ? "/select-subject" : "/exam-config"}
             className="block w-full bg-indigo-600 text-white py-3 rounded-xl font-bold"
           >
             Return to Setup
@@ -97,7 +101,7 @@ export default function JambExamPage() {
             </h2>
           </div>
 
-          <div className="flex bg-slate-100 p-1 rounded-xl gap-1 overflow-x-auto no-scrollbar">
+          <div className={`flex bg-slate-100 p-1 rounded-xl gap-1 overflow-x-auto no-scrollbar ${isPractice ? "hidden" : ""}`}>
             {tabSubjects.map((sub) => (
               <NavLink
                 key={sub.id}
@@ -118,7 +122,7 @@ export default function JambExamPage() {
           <Timer
             duration={config.duration}
             onTimeUp={finishExam}
-            storageKey="jamb_exam_session"
+            storageKey={isPractice ? "jamb_practice_session" : "jamb_exam_session"}
           />
         </div>
       </nav>
@@ -185,7 +189,7 @@ export default function JambExamPage() {
                   onClick={finishExam}
                   className="flex-1 bg-emerald-600 text-white py-3 rounded-xl font-black text-xs uppercase tracking-wider shadow-lg shadow-emerald-100"
                 >
-                  Submit Exam
+                  {isPractice ? "Finish Practice" : "Submit Exam"}
                 </button>
               </div>
 
@@ -201,7 +205,7 @@ export default function JambExamPage() {
                   onClick={finishExam}
                   className="px-6 py-2.5 bg-slate-800 hover:bg-emerald-600 text-white rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-md"
                 >
-                  Submit
+                  {isPractice ? "Finish" : "Submit"}
                 </button>
               </div>
             </div>
@@ -213,9 +217,21 @@ export default function JambExamPage() {
           <div className="flex-1 w-full">
             <div className="bg-white rounded-4xl md:rounded-[2.5rem] shadow-sm border border-slate-200 overflow-hidden flex flex-col transition-all">
               <div className="bg-slate-50/50 border-b border-slate-100 p-4 md:p-5 flex justify-between items-center">
-                <span className="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter">
-                  JAMB Standard
-                </span>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter">
+                    {isPractice ? "Practice Drill" : "JAMB Standard"}
+                  </span>
+                  {isPractice && practiceConfig?.topic && (
+                    <span className="bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-[10px] font-bold">
+                      {practiceConfig.topic}
+                    </span>
+                  )}
+                  {isPractice && practiceConfig?.difficulty && (
+                    <span className="bg-amber-50 text-amber-700 px-3 py-1 rounded-full text-[10px] font-bold uppercase">
+                      {practiceConfig.difficulty}
+                    </span>
+                  )}
+                </div>
                 <button
                   onClick={toggleFlag}
                   className={`text-xs md:text-sm font-bold flex items-center gap-2 transition-colors ${flagged.includes(currentQuestion) ? "text-amber-500" : "text-slate-400 hover:text-slate-600"}`}
@@ -276,7 +292,8 @@ export default function JambExamPage() {
                   <button
                     onClick={nextQuestion}
                     className={`flex-2 py-3 rounded-xl font-black text-sm text-white transition-all active:scale-95 flex items-center justify-center gap-2 ${
-                      currentQuestion === questions.length - 1 && isLastSubject
+                      currentQuestion === questions.length - 1 &&
+                      (isLastSubject || isPractice)
                         ? "bg-emerald-600 animate-pulse"
                         : "bg-indigo-600"
                     }`}
@@ -315,7 +332,7 @@ export default function JambExamPage() {
         <button
           onClick={nextQuestion}
           className={`px-8 py-3 rounded-xl font-black text-sm text-white shadow-lg transition-all active:scale-95 ${
-            currentQuestion === questions.length - 1 && isLastSubject
+            currentQuestion === questions.length - 1 && (isLastSubject || isPractice)
               ? "bg-emerald-600 shadow-emerald-100"
               : "bg-indigo-600 shadow-indigo-100"
           }`}

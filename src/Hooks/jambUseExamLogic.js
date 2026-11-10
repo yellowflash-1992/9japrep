@@ -11,8 +11,14 @@ import { useNavigate } from "react-router-dom";
 import { ExamStateContext } from "../Helpers/Contexts";
 import { supabase } from "../lib/supabase";
 import { useAuth } from "./useAuth";
+import {
+  fetchPracticeQuestions,
+  pickBalancedQuestions,
+  shuffle,
+} from "../Helpers/questionBank";
 
 const SESSION_PREFIX = "jamb_exam_session_";
+const PRACTICE_PREFIX = "jamb_practice_";
 
 const getAttemptId = () => {
   try {
@@ -26,7 +32,9 @@ const getAttemptId = () => {
   }
 };
 
-export const useExam = (subjectId) => {
+export const useExam = (subjectId, options = {}) => {
+  const { mode = "exam", practiceConfig: practiceConfigProp = null } = options;
+
   const {
     userName,
     setScore,
@@ -34,7 +42,13 @@ export const useExam = (subjectId) => {
     config,
     setDetailedResults,
     setReviewData,
+    practiceConfig: contextPracticeConfig,
   } = useContext(ExamStateContext);
+
+  // Practice mode is driven by the shared practice config (set on the subject
+  // selection screen). An explicit `mode` prop still wins when provided.
+  const practiceConfig = practiceConfigProp ?? contextPracticeConfig;
+  const isPractice = mode === "practice" || Boolean(practiceConfig?.subject);
   const navigate = useNavigate();
   const { user } = useAuth();
 
@@ -68,6 +82,11 @@ export const useExam = (subjectId) => {
 
   // Normalize IDs (e.g., "Use of English" -> "english")
   const normalizedSelected = useMemo(() => {
+    // Practice mode is a single-subject drill, so the "exam" is just that subject.
+    if (isPractice) {
+      return subjectId ? [subjectId.toLowerCase().trim()] : [];
+    }
+
     return (
       selectedSubjects?.map((sub) => {
         const lower = sub.toLowerCase();
@@ -75,7 +94,7 @@ export const useExam = (subjectId) => {
         return lower.split(" ")[0];
       }) || []
     );
-  }, [selectedSubjects]);
+  }, [selectedSubjects, isPractice, subjectId]);
 
   const currentSubjectIndex = normalizedSelected.indexOf(
     subjectId?.toLowerCase().trim(),
@@ -84,7 +103,7 @@ export const useExam = (subjectId) => {
   const isLastSubject = !nextSubjectId;
 
   const currentSubjectKey = subjectId
-    ? `${SESSION_PREFIX}${subjectId.toLowerCase().trim()}`
+    ? `${isPractice ? PRACTICE_PREFIX : SESSION_PREFIX}${subjectId.toLowerCase().trim()}`
     : "";
 
   // Question Loading Logic
@@ -98,10 +117,21 @@ export const useExam = (subjectId) => {
       setLoadError("");
       const normalizedId = subjectId.toLowerCase().trim();
       const saved = JSON.parse(
-        localStorage.getItem(`${SESSION_PREFIX}${normalizedId}`),
+        localStorage.getItem(
+          `${isPractice ? PRACTICE_PREFIX : SESSION_PREFIX}${normalizedId}`,
+        ),
       );
 
-      if (saved?.questions?.length > 0) {
+      // A practice drill must match the current topic/difficulty/count,
+      // otherwise a stale drill from a previous setup would be restored.
+      const savedMatchesPractice =
+        !isPractice ||
+        (saved?.practiceConfig?.topic === (practiceConfig?.topic || "") &&
+          saved?.practiceConfig?.difficulty === (practiceConfig?.difficulty || "") &&
+          saved?.practiceConfig?.numQuestions ===
+            (Number(practiceConfig?.numQuestions) || 10));
+
+      if (saved?.questions?.length > 0 && savedMatchesPractice) {
         setQuestions(saved.questions);
         setAnswers(saved.answers || {});
         setFlagged(saved.flagged || []);
@@ -118,6 +148,39 @@ export const useExam = (subjectId) => {
       setSelectedOption(null);
 
       try {
+        // --- PRACTICE MODE: topic / difficulty drill ---
+        if (isPractice) {
+          const { data, error } = await fetchPracticeQuestions({
+            examType: "jamb",
+            subject: normalizedId,
+            topic: practiceConfig?.topic || undefined,
+            difficulty: practiceConfig?.difficulty || undefined,
+          });
+
+          if (!isActive) return;
+
+          if (error) {
+            console.error("Failed to load practice questions:", error);
+            setLoadError(
+              "Could not load questions for this practice session. Please try again later.",
+            );
+            return;
+          }
+
+          const practiceCount = Number(practiceConfig?.numQuestions) || 10;
+          const picked = shuffle(data ?? [])
+            .slice(0, practiceCount)
+            .map((q) => ({
+              ...q,
+              prompt: q.prompt ?? q.question_text ?? q.question ?? "",
+              subjectKey: normalizedId,
+            }));
+
+          setQuestions(picked);
+          return;
+        }
+
+        // --- MOCK EXAM MODE (unchanged behaviour) ---
         const { data, error } = await supabase
           .from("questions")
           .select("*")
@@ -142,14 +205,18 @@ export const useExam = (subjectId) => {
         const count = isEnglish ? (isFull ? 20 : 10) : isFull ? 10 : 5;
         const finalCount = isPremium ? count : Math.min(10, count);
 
-        const shuffled = [...rawPool]
-          .sort(() => Math.random() - 0.5)
-          .slice(0, finalCount)
-          .map((q) => ({
-            ...q,
-            prompt: q.prompt ?? q.question_text ?? q.question ?? "",
-            subjectKey: normalizedId,
-          }));
+        // Balanced mock: 30% easy / 50% medium / 20% hard when the
+        // `difficulty` column is populated, otherwise a plain shuffle.
+        const hasDifficultyData = rawPool.some((q) => q.difficulty);
+        const selected = hasDifficultyData
+          ? pickBalancedQuestions(rawPool, finalCount)
+          : shuffle(rawPool).slice(0, finalCount);
+
+        const shuffled = selected.map((q) => ({
+          ...q,
+          prompt: q.prompt ?? q.question_text ?? q.question ?? "",
+          subjectKey: normalizedId,
+        }));
 
         setQuestions(shuffled);
       } catch (error) {
@@ -167,7 +234,15 @@ export const useExam = (subjectId) => {
     return () => {
       isActive = false;
     };
-  }, [subjectId, config.duration, isPremium]);
+  }, [
+    subjectId,
+    config.duration,
+    isPremium,
+    isPractice,
+    practiceConfig?.topic,
+    practiceConfig?.difficulty,
+    practiceConfig?.numQuestions,
+  ]);
 
   // Save progress to LocalStorage
   useEffect(() => {
@@ -179,6 +254,15 @@ export const useExam = (subjectId) => {
       answers,
       currentQuestion,
       flagged,
+      ...(isPractice
+        ? {
+            practiceConfig: {
+              topic: practiceConfig?.topic || "",
+              difficulty: practiceConfig?.difficulty || "",
+              numQuestions: Number(practiceConfig?.numQuestions) || 10,
+            },
+          }
+        : {}),
     };
     localStorage.setItem(currentSubjectKey, JSON.stringify(examData));
   }, [
@@ -190,6 +274,10 @@ export const useExam = (subjectId) => {
     subjectId,
     isLoading,
     currentSubjectKey,
+    isPractice,
+    practiceConfig?.topic,
+    practiceConfig?.difficulty,
+    practiceConfig?.numQuestions,
   ]);
 
   const saveAnswer = useCallback(async (answer) => {
@@ -328,7 +416,8 @@ export const useExam = (subjectId) => {
       0,
     );
 
-    if (attemptId) {
+    // Practice drills have no `attempts` row, so never write a score for them.
+    if (attemptId && !isPractice) {
       const { error } = await supabase
         .from("attempts")
         .update({
@@ -358,7 +447,11 @@ export const useExam = (subjectId) => {
 
     // Clear only exam-related storage
     Object.keys(localStorage).forEach((k) => {
-      if (k.startsWith(SESSION_PREFIX) || k === "jamb_exam_session") {
+      if (
+        k.startsWith(SESSION_PREFIX) ||
+        k.startsWith(PRACTICE_PREFIX) ||
+        k === "jamb_exam_session"
+      ) {
         localStorage.removeItem(k);
       }
     });
@@ -378,6 +471,7 @@ export const useExam = (subjectId) => {
     flagged,
     currentSubjectKey,
     flushPendingAnswers,
+    isPractice,
   ]);
 
   const chooseOption = useCallback(
@@ -424,6 +518,8 @@ export const useExam = (subjectId) => {
       jumpToQuestion(currentQuestion + 1);
     } else if (!isLastSubject) {
       navigate(`/exam/${nextSubjectId}`);
+    } else if (isPractice) {
+      finishExam();
     } else {
       if (
         window.confirm("You are at the end of the exam. Do you want to submit?")
@@ -439,6 +535,7 @@ export const useExam = (subjectId) => {
     navigate,
     jumpToQuestion,
     finishExam,
+    isPractice,
   ]);
 
   const toggleFlag = useCallback(() => {
@@ -505,5 +602,6 @@ export const useExam = (subjectId) => {
     toggleFlag,
     isLastSubject,
     isPremium,
+    isPractice,
   };
 };

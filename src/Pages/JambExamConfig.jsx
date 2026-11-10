@@ -13,7 +13,7 @@ function JambExamConfig() {
   const modes = [
     { 
       id: 'practice', 
-      label: 'Practice Mode', 
+      label: 'Short Test (35 mins)', 
       duration: 35, 
       description: 'Perfect for a quick session. Focuses on speed and accuracy.',
       icon: <FaRunning size={24} />,
